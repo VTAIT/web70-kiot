@@ -125,7 +125,13 @@ const METHOD = {
     report_create: 'POST',
 }
 
-console.log('API',API);
-console.log('METHOD',METHOD);
+const AUTH = {
+    accept_token: 'accept-token',
+    username: 'username',
+    password: 'password'
+}
 
-export { API }
+// console.log('API',API);
+// console.log('METHOD',METHOD);
+
+export { API, AUTH }

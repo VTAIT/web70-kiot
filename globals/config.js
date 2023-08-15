@@ -17,7 +17,6 @@ const hashPassWord = async (password) => {
 
 const comparePassWord = async (password, hash) => {
     const result = await bcrypt.compare(password, hash);
-    console.log(result, password, hash)
     return result;
 }
 

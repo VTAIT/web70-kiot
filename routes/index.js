@@ -1,10 +1,8 @@
 import { Router } from "express";
-import RegisterRouter from "./register.js";
-import LoginRouter from "./login.js";
+import AuthRoute from "./auth/index.js";
 
 const RootRoute = Router();
 
-RootRoute.use("/register", RegisterRouter);
-RootRoute.use("/login", LoginRouter);
+RootRoute.use("/auth", AuthRoute);
 
 export default RootRoute;
