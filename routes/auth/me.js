@@ -9,6 +9,8 @@ MeRouter.get('/', (req, res) => {
     const payLoad = jwtVerify(token);
     if (!payLoad) {
         return res.send({ messager: " Invalid data" })
+    }else{
+        
     }
 
     res.send({ id: payLoad.id, role: payLoad.role })

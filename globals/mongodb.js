@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import { env } from './config.js'
+import { AccountSchema } from '../models/model_account.js';
 
 const connectDB = async () => {
     try {
@@ -10,6 +11,6 @@ const connectDB = async () => {
     }
 }
 
-const UserModel = mongoose.model('users', new mongoose.Schema({}, { strict: false, versionKey: false }));
+const UserModel = mongoose.model('users', AccountSchema);
 
 export { connectDB, UserModel };

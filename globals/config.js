@@ -6,13 +6,8 @@ const env = process.env;
 const salt = await bcrypt.genSalt(Number(env.SALT));
 
 const hashPassWord = async (password) => {
-    console.log(password, salt)
-    try {
-        const hash = await bcrypt.hash(password, salt);
-        return hash;
-    } catch (error) {
-        return error;
-    }
+    const hash = await bcrypt.hash(password, salt);
+    return hash;
 }
 
 const comparePassWord = async (password, hash) => {

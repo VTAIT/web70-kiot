@@ -1,28 +1,36 @@
-import { Base_Info } from "./base_info.js";
+import mongoose from "mongoose";
+import BaseSchemaInfo from "./base_info_schema.js";
 
-class ModelAccount extends Base_Info {
-    kiot_id;
-    gender;
-    password;
-    role_id;
+const AccountSchema = BaseSchemaInfo.clone();
 
-    constructor(data) {
-        super(data);
-        this.kiot_id = data.kiot_id;
-        this.gender = data.gender;
-        this.role_id = !data?.role_id ? 1 : data.role_id;
-        this.password = data.password ? data.password : '123456';
+AccountSchema.add({
+    kiot_id: {
+        type: Number,
+        cast: '{VALUE} is invalid',
+    },
+    gender: {
+        type: Number,
+        cast: '{VALUE} is invalid',
+    },
+    password: {
+        type: String,
+        trim: true,
+        required: [true, 'password is required'],
+    },
+    role_id: {
+        type: Number,
+        cast: '{VALUE} is invalid',
     }
-};
+});
 
-// const data = {
-//     transactionHistory: ['dsdklfj'],
-//     rank: 3,
-//     role_id: 5,
-//     password:'sfdsdf'
-// };
+// const ModelAccount = mongoose.model('users', AccountSchema);
 
-// const model = new ModelAccount(data);
-// console.log(model)
+// const user = new ModelAccount({ fullName: 'abc', email: 'abc@gmail.com', username: 'abc', password: 'abc', role_id: 1 });
+// try {
+//     await user.validate();
+//     console.log(user);
+// } catch (err) {
+//     console.log(err.message);
+// }
 
-export { ModelAccount };
+export { AccountSchema };

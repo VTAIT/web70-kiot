@@ -13,12 +13,13 @@ LoginRouter.post("/", async (req, res) => {
     }
 
     const userFromDb = await UserModel.findOne({ username });
-
+    console.log(username, userFromDb)
     if (!userFromDb) {
         return res.send({ messeger: 'User does not exist' });
     }
 
-    if (! await comparePassWord(password, userFromDb.password)){
+    if (! await comparePassWord(password, userFromDb.password)) {
+        console.log(password, userFromDb.password)
         return res.send({ messeger: 'User does not exist' });
     }
 
@@ -28,7 +29,7 @@ LoginRouter.post("/", async (req, res) => {
     }
 
     const dataRespone = jwtSign(payLoad, 60);
-    
+
     res.send({ token: dataRespone });
 })
 
