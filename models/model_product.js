@@ -1,28 +1,46 @@
-import { Base_Model } from "./base_model.js";
+import BaseSchema from "./base_schema.js";
 
-class ModelProduct extends Base_Model {
-    kiot_id;
-    name_product;
-    price;
-    image;
+const ProductSchema = BaseSchema.clone();
 
-    constructor(data) {
-        super();
-        this.kiot_id = data.kiot_id;
-        this.name_product = data.name_product ? data.name_product : '';
-        this.price = data.price ? data.price : 0;
-        this.image = data.image ? data.image : '';
+ProductSchema.add({
+    kiot_id: {
+        type: Number,
+        cast: '{VALUE} is invalid',
+        required: [true, 'Kiot is required'],
+    },
+    name_product: {
+        type: String,
+        required: [true, 'Name is required'],
+    },
+    price: {
+        type: Number,
+        required: [true, 'Price is required'],
+    },
+    image: {
+        type: String,
+        cast: '{VALUE} is invalid',
+    },
+    user_id: {
+        type: String,
+        required: [true, 'User is required'],
+    },
+    category: {
+        type: Number,
+        required: [true, 'User is required'],
+    },
+    code: {
+        type: String,
     }
-}
+});
 
-// const data = {
-//     transactionHistory: ['dsdklfj'],
-//     rank: 3,
-//     role_id: 5,
-//     password:'sfdsdf'
-// };
+// const ModelProduct = mongoose.model('products', ProductSchema);
 
-// const model = new ModelProduct(data);
-// console.log(model)
+// const user = new ModelProduct({ fullName: 'abc', email: 'abc@gmail.com', username: 'abc', password: 'abc', role_id: 1 });
+// try {
+//     await user.validate();
+//     console.log(user);
+// } catch (err) {
+//     console.log(err.message);
+// }
 
-export { ModelProduct };
+export { ProductSchema };

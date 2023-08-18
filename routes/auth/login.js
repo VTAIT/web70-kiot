@@ -25,7 +25,8 @@ LoginRouter.post("/", async (req, res) => {
 
     const payLoad = {
         id: userFromDb._id,
-        role: userFromDb.role
+        role: userFromDb.role_id,
+        kiot_id: userFromDb.kiot_id
     }
 
     const dataRespone = jwtSign(payLoad, 60);

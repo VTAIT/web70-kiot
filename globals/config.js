@@ -2,7 +2,7 @@ import 'dotenv/config';
 import bcrypt from 'bcrypt';
 
 const env = process.env;
-
+const defaultImage = "1kvFDWul0NlJiF4Pc5fCGAdMqXhWWkUPY";
 const salt = await bcrypt.genSalt(Number(env.SALT));
 
 const hashPassWord = async (password) => {
@@ -15,4 +15,4 @@ const comparePassWord = async (password, hash) => {
     return result;
 }
 
-export { env, hashPassWord, comparePassWord };
+export { env, hashPassWord, comparePassWord, defaultImage };

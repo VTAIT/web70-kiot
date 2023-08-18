@@ -13,7 +13,7 @@ MeRouter.get('/', (req, res) => {
         
     }
 
-    res.send({ id: payLoad.id, role: payLoad.role })
+    res.send({ id: payLoad.id, role: payLoad.role, kiot_id:  payLoad.kiot_id})
 });
 
 export default MeRouter;

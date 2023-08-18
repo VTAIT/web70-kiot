@@ -17,7 +17,7 @@ BaseSchemaInfo.add({
         required: [true, 'User Name is required'],
         validate: {
             validator: (v) => {
-                return /^[a-z 0-9]^/.test(v);
+                return /^[a-z 0-9]/.test(v);
             },
             message: "User Name only lowercase"
         }
@@ -26,7 +26,7 @@ BaseSchemaInfo.add({
         type: Number,
         validate: {
             validator: (v) => {
-                return /^[0-9]^/.test(v);
+                return /^[0-9]/.test(v);
             },
             message: "Phone only number"
         }

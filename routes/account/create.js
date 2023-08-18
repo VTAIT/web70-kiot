@@ -1,13 +1,14 @@
 import { Router } from "express";
-import { UserModel , RegisterModel } from "../../globals/mongodb.js";
+import { UserModel } from "../../globals/mongodb.js";
 import { hashPassWord } from "../../globals/config.js";
+import { jwtSign } from "../../globals/jwt.js";
 
 const RegisterRouter = Router();
 
 RegisterRouter.post("/", async (req, res) => {
-    const { username, password, email, full_name, phone, address } = req.body;
+    const { username, password, role_id, email, exspan } = req.body;
 
-    if (!username || !password || !full_name || !phone || !address) {
+    if (!username || !password) {
         return res.send({ message: 'Missing information' });
     }
 
@@ -19,33 +20,28 @@ RegisterRouter.post("/", async (req, res) => {
 
     const hash = await hashPassWord(password);
 
-    const userDoc = new RegisterModel({ 
-        username, 
-        password: hash,
-        email,
-        full_name,
-        phone,
-        address,
-        status: 0
-        });
-        
+    const userDoc = new UserModel({ username, "password": hash, role_id , email, exspan});
     try {
         const susscess = await userDoc.save();
         if (!susscess) {
             return res.send({ message: 'unsuccessful' });
         }
 
-        res.send({ message: "Đăng ký thành công"  });
+        const payLoad = {
+            id: userDoc._id,
+            role: 'user'
+        }
+
+        const dataRespone = jwtSign(payLoad, 60);
+
+        res.send({ token: dataRespone });
     } catch (e) {
         let messages = [];
         for (const key in e.errors) {
             const element = e.errors[key];
             messages.push(element.message);
         }
-        res.send({ 
-            error: messages,
-            message: "Đăng ký không thành công" 
-        });
+        res.send({ message: messages });
     }
 })
 

@@ -20,6 +20,11 @@ AccountSchema.add({
     role_id: {
         type: Number,
         cast: '{VALUE} is invalid',
+    },
+    // trạng thái yêu cầu duyệt từ người dùng
+    status: {
+        type: Number,
+        cast: '{VALUE} is invalid',
     }
 });
 
