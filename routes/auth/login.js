@@ -25,6 +25,7 @@ LoginRouter.post("/", async (req, res) => {
 
     const payLoad = {
         id: userFromDb._id,
+        username,
         role: userFromDb.role_id,
         kiot_id: userFromDb.kiot_id
     }
