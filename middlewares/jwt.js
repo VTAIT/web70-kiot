@@ -3,29 +3,28 @@ import { AUTH } from '../globals/api.js'
 
 const jwtCheck = (req, res, next) => {
     const token = req.headers[AUTH.accept_token];
-    const payLoad = jwtVerify(token);
 
-    if (!payLoad) {
-        return res.send({ messager: " Invalid data" })
+    if (!token) {
+        return res.status(400).json({
+            message: "Token is not provided",
+        });
     }
 
-    if (!payLoad.id) {
-        return res.send({ messager: " Invalid data" })
+    try {
+        const decoded = jwtVerify(token);
+        req.users = decoded;
+        next();
+    } catch (error) {
+        if (error.message === "jwt expired") {
+            return res.status(403).json({
+                message: "Token is expired",
+            });
+        }
+
+        return res.status(401).json({
+            message: "Token is not valid",
+        });
     }
-
-    if (!payLoad.role) {
-        return res.send({ messager: " Invalid data" })
-    }
-
-    if (!payLoad.kiot_id) {
-        return res.send({ messager: " Invalid data" })
-    }
-
-    req.id = payLoad.id;
-    req.role = payLoad.role;
-    req.kiot_id = payLoad.kiot_id;
-
-    next();
 }
 
 export { jwtCheck };

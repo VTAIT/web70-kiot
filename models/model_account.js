@@ -5,7 +5,7 @@ const AccountSchema = BaseSchemaInfo.clone();
 
 AccountSchema.add({
     kiot_id: {
-        type: Number,
+        type: String,
         cast: '{VALUE} is invalid',
     },
     gender: {

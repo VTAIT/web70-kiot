@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { update } from "../../controllers/account.js";
+import { update } from "../../controllers/kiot.js";
 
 const UpdateRouter = Router();
 

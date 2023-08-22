@@ -4,7 +4,7 @@ const ProductSchema = BaseSchema.clone();
 
 ProductSchema.add({
     kiot_id: {
-        type: Number,
+        type: String,
         cast: '{VALUE} is invalid',
         required: [true, 'Kiot is required'],
     },
@@ -26,7 +26,7 @@ ProductSchema.add({
     },
     category: {
         type: Number,
-        required: [true, 'User is required'],
+        required: [true, 'category is required'],
     },
     code: {
         type: String,

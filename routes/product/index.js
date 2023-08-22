@@ -1,28 +1,14 @@
 import { Router } from "express";
-import CreateRouter from "./create.js";
-import { ProductModel } from "../../globals/mongodb.js";
 import { jwtCheck } from "../../middlewares/jwt.js";
+import CreateRouter from "./create.js";
+import ReadRouter from "./read.js";
+import UpdateRouter from "./update.js";
 
 const ProductRoute = Router();
 
-ProductRoute.get("/", jwtCheck, async (req, res) => {
-    const kiot_id = req["kiot_id"];
-    const _id = req.query["Did"];
-    let productFromDb = [];
-    
-    if (_id) {
-        productFromDb = await ProductModel.findOne({ _id });
-    }
-    else if (kiot_id) {
-        productFromDb = await ProductModel.find({ kiot_id });
-    };
-
-    res.send({
-        data: productFromDb,
-        message: "Thành công"
-    });
-});
-
+ProductRoute.use(jwtCheck);
+ProductRoute.use("/", ReadRouter);
 ProductRoute.use("/create", CreateRouter);
+ProductRoute.use("/update", UpdateRouter);
 
-export default ProductRoute;
+export default ProductRoute; 

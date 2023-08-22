@@ -1,14 +1,11 @@
-import { Base_Info } from "./base_info.js";
 
-class ModelKiot extends Base_Info {
-    describe;
-    image;
+import BaseSchemaInfo from "./base_info_schema.js";
 
-    constructor(data) {
-        super(data);
-        this.describe = data.describe ? data.describe : '';
-        this.image = data.image ? data.image : '';
-    }
-}
+const KiotSchema = BaseSchemaInfo.clone();
 
-export { ModelKiot };
+KiotSchema.add({
+    describe: String,
+    image: String
+});
+
+export { KiotSchema };

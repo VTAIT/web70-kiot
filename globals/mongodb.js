@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { env } from "./config.js";
 import { AccountSchema } from "../models/model_account.js";
 import { ProductSchema } from '../models/model_product.js';
+import { KiotSchema } from '../models/model_kiot.js';
 
 const connectDB = async () => {
   try {
@@ -16,5 +17,7 @@ const connectDB = async () => {
 
 const UserModel = mongoose.model("users", AccountSchema);
 const ProductModel = mongoose.model('products', ProductSchema);
-const RegisterModel = mongoose.model('Registers', AccountSchema);
-export { connectDB, UserModel,ProductModel,RegisterModel };
+const RegisterModel = mongoose.model('registers', AccountSchema);
+const KiotModel = mongoose.model('kiots', KiotSchema);
+
+export { connectDB, UserModel, ProductModel, RegisterModel, KiotModel };

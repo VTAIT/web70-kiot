@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const BaseSchema = new mongoose.Schema({
     active: {
         type: Boolean,
-        default: true
+        required: [true, 'active is required'],
     },
 }, {
     timestamps: true,
