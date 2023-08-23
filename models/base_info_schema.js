@@ -34,7 +34,6 @@ BaseSchemaInfo.add({
     email: {
         type: String,
         trim: true,
-        required: [true, 'Email address is required'],
         validate: {
             validator: (v) => {
                 return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(v);

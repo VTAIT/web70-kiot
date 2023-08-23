@@ -1,26 +1,25 @@
-import { Base_Info } from "./base_info.js";
 
-class ModelCustomer extends Base_Info {
-    kiot_id;
-    gender;
-    transactionHistory;
-    rank;
+import BaseSchemaInfo from "./base_info_schema.js";
 
-    constructor(data){
-        super(data);
-        this.kiot_id = data.kiot_id;
-        this.gender = data.gender;
-        this.rank = !data?.rank ? 1 : data.rank;
-        this.transactionHistory = !data.transactionHistory?.length ? [] : data.transactionHistory;
-    }
-};
+const CustomerSchema = BaseSchemaInfo.clone();
 
-// const data = {
-//     transactionHistory: ['dsdklfj'],
-//     rank: 3
-// };
+CustomerSchema.add({
+    kiot_id: {
+        type: String,
+        cast: '{VALUE} is invalid',
+    },
+    gender: {
+        type: Number,
+        cast: '{VALUE} is invalid',
+    },
+    transactionHistory: {
+        type: [String],
+        cast: '{VALUE} is invalid',
+    },
+    rank: {
+        type: Number,
+        cast: '{VALUE} is invalid',
+    },
+});
 
-// const model = new ModelCustomer(data);
-// console.log(model)
-
-export { ModelCustomer };
+export { CustomerSchema };

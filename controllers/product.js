@@ -88,7 +88,6 @@ export const create = async (req, res) => {
 };
 
 export const update = async (req, res) => {
-    const { id, role, kiot_id } = req.users;
     const { productId, active, name_product, price, image, category, code } = req.body;
 
     if (!productId || !name_product || !price || !category) {

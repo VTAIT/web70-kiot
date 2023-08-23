@@ -1,32 +1,66 @@
-import { Base_Model } from "./base_model.js";
+import BaseSchemaInfo from "./base_info_schema.js";
 
-class ModelTransaction extends Base_Model {
-    kiot_id;
-    status;
-    deposit;
-    return;
-    retrun_id;
-    product_id;
+const TransactionSchema = BaseSchemaInfo.clone();
 
-    constructor(data) {
-        super();
-        this.kiot_id = data.kiot_id;
-        this.status = data.status ? data.status : 'Chưa thanh toán';
-        this.deposit = data.deposit ? data.deposit : 0;
-        this.return = data.return ? data.return : 0;
-        this.product_id = !data.product_id?.length ? [] : data.product_id;
-        this.retrun_id = !data.retrun_id?.length ? [] : data.retrun_id;
-    }
-}
+TransactionSchema.add({
+    kiot_id: {
+        type: String,
+        cast: '{VALUE} is invalid',
+    },
+    status: {
+        type: Number,
+        cast: '{VALUE} is invalid',
+    },
+    // Tiền đặt cọc
+    deposit: {
+        type: Number,
+        cast: '{VALUE} is invalid',
+    },
+    // Tiền trả hàng
+    returnV: {
+        type: Number,
+        cast: '{VALUE} is invalid',
+    },
+    // Danh sách hàng trả
+    retrun_list: {
+        type: [{
+            _id: false,
+            name: {
+                type: String,
+                cast: '{VALUE} is invalid',
+                required: [true, 'Name is required']
+            },
+            value: {
+                type: Number,
+                cast: '{VALUE} is invalid',
+                required: [true, 'Value is required']
+            },
+        }],
+        cast: '{VALUE} is invalid',
+    },
+    // Danh sách hàng mua
+    product_list: {
+        type: [{
+            _id: false,
+            name: {
+                type: String,
+                cast: '{VALUE} is invalid',
+                required: [true, 'Name is required']
+            },
+            value: {
+                type: Number,
+                cast: '{VALUE} is invalid',
+                required: [true, 'Value is required']
+            }
+        }],
+        cast: '{VALUE} is invalid',
 
-// const data = {
-//     transactionHistory: ['dsdklfj'],
-//     rank: 3,
-//     role_id: 5,
-//     password:'sfdsdf'
-// };
+    },
+    // Sử dụng để thông kê
+    code: {
+        type: Number,
+        cast: '{VALUE} is invalid',
+    },
+});
 
-// const model = new ModelTransaction(data);
-// console.log(model)
-
-export { ModelTransaction};
+export { TransactionSchema };
