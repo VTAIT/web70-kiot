@@ -1,5 +1,4 @@
-import { KiotModel } from "../../globals/mongodb";
-
+import { KiotModel } from "../../globals/mongodb.js"
 
 export const kiot_create = async (username) => {
     if (!username) throw new Error("Missing required fields");
