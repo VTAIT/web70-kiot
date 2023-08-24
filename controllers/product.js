@@ -1,9 +1,34 @@
-import { ProductModel } from "../globals/mongodb.js";
+import { product_create, product_getAll, product_getAllByKiot, product_getById, product_getByName, product_updateById } from "../services/mongo/product.js";
 
 export const getAll = async (req, res) => {
     const { kiot_id, role } = req.users;
 
     let productFromDb = [];
+
+    try {
+        // supper admin
+        if (role === 1) {
+            productFromDb = await product_getAll();
+        } else {
+            productFromDb = await product_getAllByKiot(kiot_id);
+        }
+
+        res.send({
+            data: productFromDb,
+            message: "Successful"
+        });
+    } catch (e) {
+        let messages = [];
+        for (const key in e.errors) {
+            const element = e.errors[key];
+            messages.push(element.message);
+        }
+        res.status(400).send({
+            error: messages,
+            message: "Unsuccessful",
+            catch: e.message
+        });
+    }
 
     // supper admin
     if (role === 1) {
@@ -21,58 +46,16 @@ export const getAll = async (req, res) => {
 };
 
 export const getById = async (req, res) => {
-    const { kiot_id, role } = req.users;
-    const _id = req.query["Did"];
-
-    let kiotFromDb = [];
-
-    // supper admin
-    if (role === 1) {
-        kiotFromDb = await ProductModel.find({ _id });
-    } else {
-        if (kiot_id) {
-            kiotFromDb = await ProductModel.find({ kiot_id });
-        }
-    }
-
-    res.send({
-        data: kiotFromDb,
-        message: "Thành công"
-    });
-};
-
-export const create = async (req, res) => {
-    const { id, role, kiot_id } = req.users;
-    const { name_product, price, image } = req.body;
-
-    if (!kiot_id || !name_product || !price) {
-        return res.send({ messeger: 'Missing information' });
-    }
-
-    const productFromDb = await ProductModel.findOne({ name_product, kiot_id });
-    if (productFromDb) {
-        return res.send({ messeger: 'Product already exist' });
-    }
-
-    const category = 0;
-    const code = ""
-
-    const productDoc = new ProductModel({
-        kiot_id,
-        name_product,
-        price,
-        image,
-        user_id: id,
-        category,
-        code,
-        active: true
-    });
+    const id = req.query["Did"];
 
     try {
-        const respones = await productDoc.save();
+        if (!id) throw new Error("Missing required fields");
+
+        const productFromDb = await product_getById(id);
+
         res.send({
-            data: respones,
-            message: "Thêm thành công"
+            data: productFromDb,
+            message: "Successful"
         });
     } catch (e) {
         let messages = [];
@@ -80,65 +63,78 @@ export const create = async (req, res) => {
             const element = e.errors[key];
             messages.push(element.message);
         }
-        res.send({
+        res.status(400).send({
             error: messages,
-            message: "Thêm không thành công"
+            message: "Unsuccessful",
+            catch: e.message
+        });
+    }
+};
+
+export const create = async (req, res) => {
+    const { id, kiot_id } = req.users;
+    const { name_product, price, image, category } = req.body;
+    try {
+        if (!kiot_id
+            || !name_product
+            || !price
+            || !category
+        ) throw new Error("Missing required fields");
+
+        if (await product_getByName(name_product, kiot_id)) throw new Error("Product has already exist");
+
+        const result = new product_create({
+            kiot_id,
+            name_product,
+            price,
+            image,
+            id,
+            category,
+        });
+
+        res.send({
+            data: result,
+            message: "Create successfully"
+        });
+    } catch (e) {
+        let messages = [];
+        for (const key in e.errors) {
+            const element = e.errors[key];
+            messages.push(element.message);
+        }
+        res.status(400).send({
+            error: messages,
+            message: "Create unsuccessful",
+            catch: e.message
         });
     }
 };
 
 export const update = async (req, res) => {
-    const { productId, active, name_product, price, image, category, code } = req.body;
-
-    if (!productId || !name_product || !price || !category) {
-        return res.send({ messeger: 'Missing information' });
-    }
-
-    let existingProduct = await ProductModel.findOne({ name_product });
-    if (existingProduct) {
-        return res.json({
-            message: "Product name already exist",
-        });
-    }
-
-    existingProduct = await ProductModel.findOne({ _id: productId });
-    if (!existingProduct) {
-        return res.json({
-            message: "Product not already exist",
-        });
-    }
-
-    if (name_product) {
-        existingProduct.name_product = name_product;
-    }
-
-    if (price) {
-        existingProduct.price = price;
-    }
-
-    if (image) {
-        existingProduct.image = image;
-    }
-
-    if (active != existingProduct.active) {
-        existingProduct.active = active;
-    }
-
-    if (category) {
-        existingProduct.category = category;
-    }
-
-    if (code) {
-        existingProduct.code = code;
-    }
-
+    const {
+        productId,
+        active,
+        name_product,
+        price,
+        image,
+        category,
+        code
+    } = req.body;
     try {
-        const susscess = await existingProduct.save();
-        if (!susscess) {
-            return res.send({ message: 'unsuccessful' });
-        }
+        if (!productId) throw new Error("Missing required fields");
+
+        const result = await product_updateById({
+            productId,
+            active,
+            name_product,
+            price,
+            image,
+            category,
+            code
+        });
 
         res.send({
+            data: result,
             message: "Update successfully",
         });
     } catch (e) {
@@ -147,9 +143,10 @@ export const update = async (req, res) => {
             const element = e.errors[key];
             messages.push(element.message);
         }
-        res.send({
+        res.status(400).send({
             error: messages,
-            message: "Update unsuccessful"
+            message: "Update unsuccessful",
+            catch: e.message
         });
     }
 };

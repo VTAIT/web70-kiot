@@ -1,215 +1,48 @@
 import { hashPassWord } from "../globals/config.js";
-import { jwtSign } from "../globals/jwt.js";
-import { RegisterModel, UserModel } from "../globals/mongodb.js";
-import { createKiot } from './kiot.js'
+import { user_create, user_getAll, user_getAllByKiot, user_getById, user_getByUserName, user_updateById } from "../services/mongo/user.js";
+import { kiot_create } from "../services/mongo/kiot.js";
+import { registe_getAll, registe_getById } from "../services/mongo/register.js";
 
 export const getAll = async (req, res) => {
     const { kiot_id, role } = req.users;
 
     let accountFromDb = [];
-
-    // supper admin
-    if (role === 1) {
-        accountFromDb = await UserModel.find({}).select("-password");
-    } else {
-        if (kiot_id) {
-            accountFromDb = await UserModel.find({ kiot_id }).select("-password");
+    try {
+        // supper admin
+        if (role === 1) {
+            accountFromDb = await user_getAll(role);
+        } else {
+            accountFromDb = await user_getAllByKiot({ kiot_id });
         }
-    }
 
-    res.send({
-        data: accountFromDb,
-        message: "Thành công"
-    });
+        res.send({
+            data: accountFromDb,
+            message: "Successful"
+        });
+    } catch (e) {
+        let messages = [];
+        for (const key in e.errors) {
+            const element = e.errors[key];
+            messages.push(element.message);
+        }
+        res.status(400).send({
+            error: messages,
+            message: "Unsuccessful",
+            catch: e.message
+        });
+    }
 };
 
 export const getById = async (req, res) => {
-    const { kiot_id, role } = req.users;
-    const _id = req.query["Did"];
-
-    let accountFromDb = [];
-
-    // supper admin
-    if (role === 1) {
-        accountFromDb = await UserModel.find({ _id }).select("-password");
-    } else {
-        if (kiot_id) {
-            accountFromDb = await UserModel.find({ kiot_id, _id }).select("-password");
-        }
-    }
-
-    res.send({
-        data: accountFromDb,
-        message: "Thành công"
-    });
-};
-
-export const create = async (req, res) => {
-    const { username, password, email, fullName, phone, address } = req.body;
-
-    if (!username || !password || !fullName || !phone || !address) {
-        return res.status(400).json({
-            message: "Missing required fields",
-        });
-    }
-    try {
-        const existingUser = await UserModel.findOne({ username });
-
-        if (existingUser) {
-            return res.json({
-                message: "User has already exist",
-            });
-        }
-
-        const kiotModel = await createKiot(username);
-        if (!kiotModel) {
-            return res.send({
-                message: 'Kiot unsuccessful'
-            });
-        }
-
-        const hashedPassword = await hashPassWord(password);
-
-        const userDoc = new UserModel({
-            username,
-            password: hashedPassword,
-            email,
-            fullName,
-            phone,
-            address,
-            status: 1,
-            role_id: 2,
-            active: true,
-            kiot_id: kiotModel._id.toString()
-        });
-
-
-        const susscess = await userDoc.save();
-        if (!susscess) {
-            return res.send({ message: 'User unsuccessful' });
-        }
-
-        const jwtPayload = {
-            id: susscess._id,
-            username,
-            role: susscess.role_id,
-            kiot_id: susscess.kiot_id
-        };
-
-        const token = jwtSign(jwtPayload, 60);
-
-        res.send({
-            accessToken: token,
-            message: "Create successfully",
-        });
-    } catch (e) {
-        let messages = [];
-        for (const key in e.errors) {
-            const element = e.errors[key];
-            messages.push(element.message);
-        }
-        res.send({
-            error: messages,
-            message: "Create unsuccessful"
-        });
-    }
-};
-
-export const update = async (req, res) => {
-    const { username, password, email, fullName, phone, address, active, gender, role_id, status } = req.body;
-
-    if (!username) {
-        return res.status(400).json({
-            message: "Missing required fields",
-        });
-    }
-
-    const existingUser = await UserModel.findOne({ username });
-
-    if (!existingUser) {
-        return res.json({
-            message: "User not already exist",
-        });
-    }
-
-    if (password) {
-        const hashedPassword = await hashPassWord(password);
-        existingUser.password = hashedPassword;
-    }
-
-    if (email) {
-        existingUser.email = email;
-    }
-
-    if (fullName) {
-        existingUser.fullName = fullName;
-    }
-
-    if (phone) {
-        existingUser.phone = phone;
-    }
-
-    if (address) {
-        existingUser.address = address;
-    }
-
-    if (active != existingUser.active) {
-        existingUser.active = active;
-    }
-
-    if (gender) {
-        existingUser.gender = gender;
-    }
-
-    if (role_id) {
-        existingUser.role_id = role_id;
-    }
-
-    if (status) {
-        existingUser.status = status;
-    }
+    const id = req.query["Did"];
 
     try {
-        const susscess = await existingUser.save();
-        if (!susscess) {
-            return res.send({ message: 'unsuccessful' });
-        }
+        if (!id) throw new Error("Missing required fields");
 
-        const jwtPayload = {
-            id: existingUser._id,
-            username,
-            role: existingUser.role_id,
-            kiot_id: existingUser.kiot_id
-        };
-
-        const token = jwtSign(jwtPayload, 60);
+        const accountFromDb = await user_getById(id);
 
         res.send({
-            accessToken: token,
-            message: "Update successfully",
-        });
-    } catch (e) {
-        let messages = [];
-        for (const key in e.errors) {
-            const element = e.errors[key];
-            messages.push(element.message);
-        }
-        res.send({
-            error: messages,
-            message: "Update unsuccessful"
-        });
-    }
-};
-
-export const getAllAccept = async (req, res) => {
-    try {
-        const RegisterFromDb = await RegisterModel.find({ status: 0 });
-        if (!RegisterFromDb) {
-            return res.send({ messeger: 'Nothing' });
-        }
-
-        res.send({
-            data: RegisterFromDb,
+            data: accountFromDb,
             message: "Thành công"
         });
     } catch (e) {
@@ -218,50 +51,109 @@ export const getAllAccept = async (req, res) => {
             const element = e.errors[key];
             messages.push(element.message);
         }
-        res.send({
+        res.status(400).send({
             error: messages,
-            message: "Không thành công"
+            message: "Unsuccessful",
+            catch: e.message
         });
     }
 };
 
-export const acceptById = async (req, res) => {
-    const { id } = req.body;
-
-    if (!id) {
-        return res.send({ message: 'Missing information' });
-    }
-
-    const AccountFromDb = await RegisterModel.findOne({ _id: id });
-
-    if (!AccountFromDb) {
-        return res.send({ message: 'Account does not exist' });
-    }
-
-    const userDoc = new UserModel({
-        username: AccountFromDb.username,
-        password: AccountFromDb.password,
-        email: AccountFromDb.email,
-        fullName: AccountFromDb.fullName,
-        phone: AccountFromDb.phone,
-        address: AccountFromDb.address,
-        status: 1,
-        active: true
-    });
-
-    AccountFromDb.status = 1;
+export const create = async (req, res) => {
+    const { username, password, email, fullName, phone, address, role_id } = req.body;
+    const { kiot_id } = req.users;
     try {
-        let susscess = await AccountFromDb.save();
-        if (!susscess) {
-            return res.send({ message: 'unsuccessful' });
-        }
+        if (!username
+            || !password
+            || !fullName
+            || !phone
+            || !address
+        ) throw new Error("Missing required fields");
 
-        susscess = await userDoc.save();
-        if (!susscess) {
-            return res.send({ message: 'unsuccessful' });
-        }
+        if (await user_getByUserName(username)) throw new Error("User has already exist");
 
-        res.send({ message: "Kích hoạt thành công" });
+        const hashedPassword = await hashPassWord(password);
+
+        const userDoc = await user_create({
+            username,
+            password: hashedPassword,
+            email,
+            fullName,
+            phone,
+            address,
+            status: 1,
+            role_id: role_id ? role_id : 3,
+            active: true,
+            kiot_id
+        });
+
+        res.send({
+            data: userDoc,
+            message: "Create successfully",
+        });
+    } catch (e) {
+        let messages = [];
+        for (const key in e.errors) {
+            const element = e.errors[key];
+            messages.push(element.message);
+        }
+        res.status(400).send({
+            error: messages,
+            message: "Create unsuccessful",
+            catch: e.message
+        });
+    }
+};
+
+export const update = async (req, res) => {
+    const { userId, password, email, fullName, phone, address, active, gender, role_id, status } = req.body;
+    try {
+        if (!userId) throw new Error("Missing required fields");
+
+        const result = await user_updateById({
+            userId,
+            password,
+            email,
+            fullName,
+            phone,
+            address,
+            active,
+            gender,
+            role_id: userId === req.users.id ? req.users.role : role_id,
+            status
+        });
+
+        res.send({
+            data: result,
+            message: "Update successfully",
+        });
+    } catch (e) {
+        let messages = [];
+        for (const key in e.errors) {
+            const element = e.errors[key];
+            messages.push(element.message);
+        }
+        res.status(400).send({
+            error: messages,
+            message: "Update unsuccessful",
+            catch: e.message
+        });
+    }
+};
+
+export const getAllAccept = async (req, res) => {
+    const { role } = req.users;
+    try {
+        if (role !== 1) throw new Error('Nothing');
+
+        const RegisterFromDb = await registe_getAll();
+
+        if (!RegisterFromDb || role !== 1) throw new Error('Nothing');
+
+        res.send({
+            data: RegisterFromDb,
+            message: "Successful"
+        });
     } catch (e) {
         let messages = [];
         for (const key in e.errors) {
@@ -270,7 +162,66 @@ export const acceptById = async (req, res) => {
         }
         res.send({
             error: messages,
-            message: "Kích hoạt không thành công"
+            message: "Unsuccessful",
+            catch: e.message
         });
     }
+};
+
+export const acceptById = async (req, res) => {
+    const { id } = req.body;
+
+    try {
+        if (!id) throw new Error('Missing information');
+
+        const AccountFromDb = await registe_getById(id);
+
+        if (!AccountFromDb) throw new Error('Account does not exist');
+
+        const { username,
+            password,
+            email,
+            fullName,
+            phone,
+            address
+        } = AccountFromDb;
+
+        const existingUser = await user_getByUserName(username);
+
+        if (existingUser) throw new Error("User has already exist");
+
+        const kiotModel = await kiot_create(username);
+
+        const result = await user_create({
+            username,
+            password,
+            email,
+            fullName,
+            phone,
+            address,
+            role_id: 2,
+            kiot_id: kiotModel._id.toString()
+        });
+
+        AccountFromDb.status = 1;
+        await AccountFromDb.save();
+
+        res.send({
+            data: result,
+            message: "Active successfully",
+        });
+
+    } catch (e) {
+        let messages = [];
+        for (const key in e.errors) {
+            const element = e.errors[key];
+            messages.push(element.message);
+        }
+        res.send({
+            error: messages,
+            message: "Active unsuccessful",
+            catch: e.message
+        });
+    }
+
 };

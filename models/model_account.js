@@ -15,11 +15,11 @@ AccountSchema.add({
     password: {
         type: String,
         trim: true,
-        required: [true, 'password is required'],
+        required: [true, 'Password is required'],
     },
     role_id: {
         type: Number,
-        cast: '{VALUE} is invalid',
+        cast: '{VALUE} is invalid'
     },
     // trạng thái yêu cầu duyệt từ người dùng
     status: {

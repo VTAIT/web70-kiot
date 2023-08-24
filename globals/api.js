@@ -128,7 +128,8 @@ const METHOD = {
 const AUTH = {
     accept_token: 'accept-token',
     username: 'username',
-    password: 'password'
+    password: 'password',
+    pa: 'pa'
 }
 
 // console.log('API',API);

@@ -1,42 +1,34 @@
 import { comparePassWord, hashPassWord } from "../globals/config.js";
 import { jwtSign } from "../globals/jwt.js";
 import { UserModel, RegisterModel } from "../globals/mongodb.js";
+import { user_getById, user_getByUserName } from '../services/mongo/user.js';
+import { registe_getByUserName, register_create } from '../services/mongo/register.js';
 
 export const loginController = async (req, res) => {
     const { username, password } = req.body;
 
     try {
         //   1. Validation
-        if (!username || !password) {
-            return res.status(400).json({
-                message: "Missing required fields",
-            });
-        }
+        if (!username || !password) throw new Error("Missing required fields");
+
         //   2. Check authentication
-        const existingUser = await UserModel.findOne({ username });
-        if (!existingUser) {
-            return res.status(401).json({
-                message: "Invalid credentials!",
-            });
-        }
+        const existingUser = await user_getByUserName(username);
+
+        if (!existingUser) throw new Error("Invalid credentials!");
 
         // 3. Check password
         const isMatchPassword = await comparePassWord(password, existingUser.password);
-        if (!isMatchPassword) {
-            return res.status(401).json({
-                message: "Username or password is not correct!",
-            });
-        }
+        if (!isMatchPassword) throw new Error("Username or password is not correct!");
 
         // Create JWT Token & Response to client
         const jwtPayload = {
             id: existingUser._id,
-            username,
+            username: existingUser.username,
             role: existingUser.role_id,
             kiot_id: existingUser.kiot_id
         };
 
-        const token = jwtSign(jwtPayload, 60);
+        const token = jwtSign(jwtPayload, 60 * 24);
 
         res.json({
             accessToken: token,
@@ -48,61 +40,41 @@ export const loginController = async (req, res) => {
             const element = e.errors[key];
             messages.push(element.message);
         }
-        res.status(500).json({
+        res.status(400).json({
+            message: "Login unsuccessfully",
             error: messages,
+            catch: e.message
         });
     }
 };
 
 export const registerController = async (req, res) => {
-    const { username, password, email, fullName, phone, address } = req.body;
+    const { username, password, email, fullName, phone, address, gender } = req.body;
 
     try {
         //   1. Validation
-        if (!username || !password || !fullName || !phone || !address) {
-            return res.status(400).json({
-                message: "Missing required fields",
-            });
-        }
+        if (!username || !password || !fullName || !phone || !address) throw new Error("Missing required fields");
 
-        // find User by email
-        const existingUser = await UserModel.findOne({ username });
+        // Tránh trùng username
+        if (await user_getByUserName(username)) throw new Error("User has already exist");
 
-        if (existingUser) {
-            return res.json({
-                message: "User has already exist",
-            });
-        }
+        // Tránh đăng ký 2 lần giống nhau
+        if (await registe_getByUserName(username)) throw new Error("Register has already exist")
 
-        const existingRegister = await RegisterModel.findOne({ username });
-
-        if (existingRegister) {
-            return res.json({
-                message: "Register has already exist",
-            });
-        }
-
-        // 3. Create new user, insert into DB
-        // 3.1 Has password (mã hoá password)
-        const hashedPassword = await hashPassWord(password);
-
-        // 3.2 Create new register object
-        const newRegister = new RegisterModel({
+        // 3 Create new register object
+        const newRegister = await register_create({
             username,
-            password: hashedPassword,
+            password,
             email,
             fullName,
             phone,
             address,
-            status: 0
+            gender
         });
 
-        // Insert new record into collection
-        await newRegister.save();
-        
         // 4. Response to client
-        res.status(201).json({
-            user: newRegister,
+        res.json({
+            data: newRegister,
             message: "Register new user successfully",
         });
     } catch (e) {
@@ -112,17 +84,20 @@ export const registerController = async (req, res) => {
             messages.push(element.message);
         }
 
-        res.status(500).json({
+        res.status(400).json({
+            message: "Register unsuccessfully",
             error: messages,
+            catch: e.message
         });
     }
 };
 
 export const getMeController = async (req, res) => {
     const { id } = req.users;
-    const currentUser = await UserModel.findById(id).select("-password");
+    const currentUser = await user_getById(id);
 
     res.json({
-        userInfo: currentUser,
+        data: currentUser,
+        message: "Successfully",
     });
 };
