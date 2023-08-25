@@ -60,7 +60,16 @@ export const getById = async (req, res) => {
 };
 
 export const create = async (req, res) => {
-    const { username, password, email, fullName, phone, address, role_id } = req.body;
+    const {
+        username,
+        password,
+        email,
+        fullName,
+        phone,
+        address,
+        role_id
+    } = req.body;
+
     const { kiot_id } = req.users;
     try {
         if (!username
@@ -201,7 +210,7 @@ export const acceptById = async (req, res) => {
             address,
             role_id: 2,
             kiot_id: kiotModel._id.toString()
-        });
+        }, false);
 
         AccountFromDb.status = 1;
         await AccountFromDb.save();

@@ -1,7 +1,7 @@
 import { hashPassWord } from "../../globals/config.js";
 import { UserModel } from "../../globals/mongodb.js";
 
-export const user_create = async (data) => {
+export const user_create = async (data, isHashPassword = true) => {
     const { username,
         password,
         email,
@@ -12,11 +12,9 @@ export const user_create = async (data) => {
         kiot_id
     } = data;
 
-    const hashedPassword = await hashPassWord(password);
-
     const userDoc = new UserModel({
         username,
-        password: hashedPassword,
+        password: isHashPassword ? await hashPassWord(password): password,
         email: email ? email : 'noemail@gmail.com',
         fullName,
         phone,
@@ -96,7 +94,7 @@ export const user_getByUserName = async (username, isAdmin = false) => {
 };
 
 export const user_getById = async (id, isAdmin = false) => {
-    if(isAdmin) return await UserModel.findOne({ _id: id });
+    if (isAdmin) return await UserModel.findOne({ _id: id });
     return await UserModel.findOne({ _id: id }).select('-password');
 };
 

@@ -29,7 +29,7 @@ export const register_create = async (data) => {
 };
 
 export const registe_getAll = async () => {
-    return await RegisterModel.findOne({});
+    return await RegisterModel.find({});
 };
 
 export const registe_getById = async (id) => {

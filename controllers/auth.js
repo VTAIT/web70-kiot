@@ -17,6 +17,7 @@ export const loginController = async (req, res) => {
 
         // 3. Check password
         const isMatchPassword = await comparePassWord(password, existingUser.password);
+        console.log(password , existingUser.password)
         if (!isMatchPassword) throw new Error("Username or password is not correct!");
 
         // Create JWT Token & Response to client
@@ -59,7 +60,7 @@ export const registerController = async (req, res) => {
 
         // Tránh đăng ký 2 lần giống nhau
         if (await registe_getByUserName(username)) throw new Error("Register has already exist")
-
+        
         // 3 Create new register object
         const newRegister = await register_create({
             username,
