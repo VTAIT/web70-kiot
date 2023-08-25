@@ -1,6 +1,5 @@
-import { comparePassWord, hashPassWord } from "../globals/config.js";
+import { comparePassWord } from "../globals/config.js";
 import { jwtSign } from "../globals/jwt.js";
-import { UserModel, RegisterModel } from "../globals/mongodb.js";
 import { user_getById, user_getByUserName } from '../services/mongo/user.js';
 import { registe_getByUserName, register_create } from '../services/mongo/register.js';
 
@@ -12,7 +11,7 @@ export const loginController = async (req, res) => {
         if (!username || !password) throw new Error("Missing required fields");
 
         //   2. Check authentication
-        const existingUser = await user_getByUserName(username);
+        const existingUser = await user_getByUserName(username, true);
 
         if (!existingUser) throw new Error("Invalid credentials!");
 
@@ -31,7 +30,7 @@ export const loginController = async (req, res) => {
         const token = jwtSign(jwtPayload, 60 * 24);
 
         res.json({
-            accessToken: token,
+            data: token,
             message: "Login successfully",
         });
     } catch (e) {
@@ -94,10 +93,25 @@ export const registerController = async (req, res) => {
 
 export const getMeController = async (req, res) => {
     const { id } = req.users;
-    const currentUser = await user_getById(id);
+    try {
+        const currentUser = await user_getById(id);
 
-    res.json({
-        data: currentUser,
-        message: "Successfully",
-    });
+        res.json({
+            data: currentUser,
+            message: "Successfully",
+        });
+    } catch (e) {
+        let messages = [];
+        for (const key in e.errors) {
+            const element = e.errors[key];
+            messages.push(element.message);
+        }
+
+        res.status(400).json({
+            message: "Register unsuccessfully",
+            error: messages,
+            catch: e.message
+        });
+    }
+
 };

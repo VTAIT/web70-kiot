@@ -88,18 +88,24 @@ export const user_updateById = async (data) => {
     return await existingUser.save();
 };
 
-export const user_getByUserName = async (username) => {
-    return await UserModel.findOne({ username }).select("-password");
+export const user_getByUserName = async (username, isAdmin = false) => {
+    if (isAdmin) {
+        return await UserModel.findOne({ username: username });
+    }
+    return await UserModel.findOne({ username: username }).select('-password');
 };
 
-export const user_getById = async (id) => {
-    return await UserModel.findOne({ _id: id }).select("-password");
+export const user_getById = async (id, isAdmin = false) => {
+    if(isAdmin) return await UserModel.findOne({ _id: id });
+    return await UserModel.findOne({ _id: id }).select('-password');
 };
 
-export const user_getAll = async () => {
-    return await UserModel.find({}).select("-password");
+export const user_getAll = async (isAdmin = false) => {
+    if (isAdmin) return await UserModel.find({});
+    return await UserModel.find({}).select('-password');
 };
 
-export const user_getAllByKiot = async (kiotId) => {
-    return await UserModel.find({ kiotId }).select("-password");
+export const user_getAllByKiot = async (kiotId, isAdmin = false) => {
+    if (isAdmin) return await UserModel.find({ kiotId: kiotId });
+    return await UserModel.find({ kiotId: kiotId }).select('-password');
 };

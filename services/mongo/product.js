@@ -68,7 +68,7 @@ export const product_updateById = async (data) => {
 };
 
 export const product_getAll = async () => {
-    return await ProductModel.find({}).where('active', true);
+    return await ProductModel.find({});
 };
 
 export const product_getById = async (id) => {
@@ -76,9 +76,9 @@ export const product_getById = async (id) => {
 };
 
 export const product_getByName = async (name_product, kiot_id) => {
-    return await ProductModel.findOne({ name_product, kiot_id });
+    return await ProductModel.findOne({ name_product: name_product, kiot_id: kiot_id });
 };
 
 export const product_getAllByKiot = async (kiot_id) => {
-    return await ProductModel.find({ kiot_id });
+    return await ProductModel.find({ kiot_id: kiot_id });
 };

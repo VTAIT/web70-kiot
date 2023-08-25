@@ -29,7 +29,7 @@ export const register_create = async (data) => {
 };
 
 export const registe_getAll = async () => {
-    return await RegisterModel.findOne({}).where('status', 0);
+    return await RegisterModel.findOne({});
 };
 
 export const registe_getById = async (id) => {
@@ -37,5 +37,5 @@ export const registe_getById = async (id) => {
 };
 
 export const registe_getByUserName = async (username) => {
-    return await RegisterModel.findOne({ username });
+    return await RegisterModel.findOne({ username: username });
 };

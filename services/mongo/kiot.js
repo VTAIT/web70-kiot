@@ -1,4 +1,4 @@
-import { KiotModel } from "../../globals/mongodb";
+import { KiotModel } from "../../globals/mongodb.js";
 
 
 export const kiot_create = async (username) => {
@@ -59,7 +59,7 @@ export const kiot_updateById = async (data) => {
 };
 
 export const kiot_getAll = async () => {
-    return await KiotModel.findOne({}).where('active', true);
+    return await KiotModel.findOne({});
 };
 
 export const kiot_getById = async (id) => {
@@ -67,5 +67,5 @@ export const kiot_getById = async (id) => {
 };
 
 export const kiot_getByName = async (fullName) => {
-    return await KiotModel.findOne({ fullName });
+    return await KiotModel.findOne({ fullName: fullName });
 };
