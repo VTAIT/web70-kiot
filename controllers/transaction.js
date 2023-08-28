@@ -1,177 +1,158 @@
-import { TransactionModel } from "../globals/mongodb.js";
+import { RESPONSE } from "../globals/api.js";
+import { Fields } from "../globals/fields.js";
+import { transaction_create, transaction_getAll, transaction_getAllByKiot, transaction_getById, transaction_updateById } from "../services/mongo/transaction.js";
 
 export const getAll = async (req, res) => {
     const { kiot_id, role } = req.users;
 
     let transactionFromDb = [];
 
-    // supper admin
-    if (role === 1) {
-        transactionFromDb = await TransactionModel.find({});
-    } else {
-        if (kiot_id) {
-            transactionFromDb = await TransactionModel.find({ kiot_id });
+    try {
+        // supper admin
+        if (role === 1) {
+            transactionFromDb = await transaction_getAll();
+        } else {
+            transactionFromDb = await transaction_getAllByKiot(kiot_id);
         }
-    }
+        res.send(
+            RESPONSE(
+                {
+                    [Fields.transactionList]: transactionFromDb
+                },
+                "Successful",
+            )
+        );
 
-    res.send({
-        data: transactionFromDb,
-        message: "Thành công"
-    });
+    } catch (e) {
+        res.status(400).send(
+            RESPONSE(
+                [],
+                "Unsuccessful",
+                e.errors,
+                e.message
+            )
+        );
+    }
 };
 
 export const getById = async (req, res) => {
-    const { kiot_id, role } = req.users;
-    const _id = req.query["Did"];
+    const id = req.query["Did"];
 
-    let customerFromDb = [];
+    try {
+        if (!id) throw new Error("Missing required fields");
 
-    // supper admin
-    if (role === 1) {
-        customerFromDb = await TransactionModel.find({ _id });
-    } else {
-        if (kiot_id) {
-            customerFromDb = await TransactionModel.find({ kiot_id, _id });
-        }
+        const transactionFromDb = await transaction_getById(id);
+
+        res.send(
+            RESPONSE(
+                {
+                    [Fields.transactiontInfo]: transactionFromDb
+                },
+                "Successful",
+            )
+        );
+    } catch (e) {
+        res.status(400).send(
+            RESPONSE(
+                [],
+                "Unsuccessful",
+                e.errors,
+                e.message
+            )
+        );
     }
-
-    res.send({
-        data: customerFromDb,
-        message: "Thành công"
-    });
 };
 
 export const create = async (req, res) => {
-    const { username, kiot_id, status, deposit, returnV, retrun_list, product_list } = req.body;
-
-    if (!username || !kiot_id || !status) {
-        return res.status(400).json({
-            message: "Missing required fields",
-        });
-    }
-
-    if (status === 2 && (!retrun_list?.length || !returnV || returnV <= 0)) {
-        return res.status(400).json({
-            message: "Missing required fields",
-        });
-    }
-
-    if (status === 3 && (!deposit || deposit <= 0)) {
-        return res.status(400).json({
-            message: "Missing required fields",
-        });
-    }
-
-    if ([1, 3, 4].includes(status) && !product_list?.length) {
-        return res.status(400).json({
-            message: "Missing required fields",
-        });
-    }
-
     try {
-
-        const codeV = Number(new Date().toISOString().split("T")[0].replaceAll("-", ""));
-
-        const transactionDoc = new TransactionModel({
+        const {
             username,
             kiot_id,
             status,
-            deposit: status === 3 ? deposit : 0,
-            returnV: status === 2 ? returnV : 0,
-            retrun_list: status === 2 ? retrun_list : [],
-            product_list: status !== 2 ? product_list : [],
-            code: codeV
+            deposit,
+            returnV,
+            retrun_list,
+            product_list
+        } = req.body;
+
+        if (!username || !kiot_id || !status) throw new Error("Missing required fields");
+
+        if (status === 2 && (!retrun_list?.length || !returnV || returnV <= 0)) throw new Error("Missing required fields, status 2");
+
+        if (status === 3 && (!deposit || deposit <= 0)) throw new Error("Missing required fields, status 3");
+
+        if ([1, 3, 4].includes(status) && !product_list?.length) throw new Error("Missing required fields, status 134");
+
+        const transactionDoc = await transaction_create({
+            username,
+            kiot_id,
+            status,
+            deposit,
+            returnV,
+            retrun_list,
+            product_list
         });
 
-
-        const susscess = await transactionDoc.save();
-        if (!susscess) {
-            return res.send({ message: 'Transaction unsuccessful' });
-        }
-
-        res.send({
-            data: susscess,
-            message: "Create successfully",
-        });
+        res.send(
+            RESPONSE(
+                {
+                    [Fields.transactiontInfo]: transactionDoc
+                },
+                "Create successful",
+            )
+        );
 
     } catch (e) {
-        // console.log('e', e)
-        let messages = [];
-        for (const key in e.errors) {
-            const element = e.errors[key];
-            messages.push(element.message);
-        }
-        res.send({
-            error: messages,
-            message: "Create unsuccessful"
-        });
+        res.status(400).send(
+            RESPONSE(
+                [],
+                "Create unsuccessful",
+                e.errors,
+                e.message
+            )
+        );
     }
 };
 
 export const update = async (req, res) => {
-    const { transactionId, status, deposit, returnV, retrun_list, product_list } = req.body;
-
-    if (!transactionId) {
-        return res.status(400).json({
-            message: "Missing required fields",
-        });
-    }
-
-    const existingTransaction = await TransactionModel.findOne({ _id: transactionId });
-
-    if (!existingTransaction) {
-        return res.json({
-            message: "Transaction not already exist",
-        });
-    }
-
-    // Giao dịch thành công không được sửa
-    if (existingTransaction.status < 2) {
-        return res.json({
-            susscess: false,
-            message: "Transaction was successful",
-        });
-    }
-
-    if (status) {
-        existingTransaction.status = status;
-    }
-
-    if (deposit) {
-        existingTransaction.deposit = deposit;
-    }
-
-    if (returnV) {
-        existingTransaction.returnV = returnV;
-    }
-
-    if (retrun_list) {
-        existingTransaction.retrun_list = retrun_list;
-    }
-
-    if (product_list) {
-        existingTransaction.product_list = product_list;
-    }
-
     try {
-        const susscess = await existingTransaction.save();
-        if (!susscess) {
-            return res.send({ message: 'unsuccessful' });
-        }
+        const {
+            transactionId,
+            status,
+            deposit,
+            returnV,
+            retrun_list,
+            product_list
+        } = req.body;
 
-        res.send({
-            data: susscess,
-            message: "Update successfully",
+        if (!transactionId) throw new Error("Missing required fields");
+
+        const result = await transaction_updateById({
+            transactionId,
+            status,
+            deposit,
+            returnV,
+            retrun_list,
+            product_list
         });
+
+        res.send(
+            RESPONSE(
+                {
+                    [Fields.transactiontInfo]: result
+                },
+                "Update successful",
+            )
+        );
+
     } catch (e) {
-        let messages = [];
-        for (const key in e.errors) {
-            const element = e.errors[key];
-            messages.push(element.message);
-        }
-        res.send({
-            error: messages,
-            message: "Update unsuccessful"
-        });
+        res.status(400).send(
+            RESPONSE(
+                [],
+                "Update unsuccessful",
+                e.errors,
+                e.message
+            )
+        );
     }
 };

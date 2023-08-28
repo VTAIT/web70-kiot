@@ -1,3 +1,5 @@
+import { RESPONSE } from "../globals/api.js";
+import { Fields } from "../globals/fields.js";
 import { customer_create, customer_getAll, customer_getAllByKiot, customer_getById, customer_getByUserName, customer_updateById } from "../services/mongo/customer.js";
 
 export const getAll = async (req, res) => {
@@ -11,22 +13,23 @@ export const getAll = async (req, res) => {
         } else {
             customerFromDb = await customer_getAllByKiot(kiot_id);
         }
-
-        res.send({
-            data: customerFromDb,
-            message: "Successful"
-        });
+        res.send(
+            RESPONSE(
+                {
+                    [Fields.customerList]: customerFromDb
+                },
+                "Successful",
+            )
+        );
     } catch (e) {
-        let messages = [];
-        for (const key in e.errors) {
-            const element = e.errors[key];
-            messages.push(element.message);
-        }
-        res.status(400).send({
-            error: messages,
-            message: "Unsuccessful",
-            catch: e.message
-        });
+        res.status(400).send(
+            RESPONSE(
+                [],
+                "Unsuccessful",
+                e.errors,
+                e.message
+            )
+        );
     }
 };
 
@@ -38,21 +41,23 @@ export const getById = async (req, res) => {
 
         const customerFromDb = await customer_getById(id);
 
-        res.send({
-            data: customerFromDb,
-            message: "Successful"
-        });
+        res.send(
+            RESPONSE(
+                {
+                    [Fields.customerInfo]: customerFromDb
+                },
+                "Successful",
+            )
+        );
     } catch (e) {
-        let messages = [];
-        for (const key in e.errors) {
-            const element = e.errors[key];
-            messages.push(element.message);
-        }
-        res.status(400).send({
-            error: messages,
-            message: "Unsuccessful",
-            catch: e.message
-        });
+        res.status(400).send(
+            RESPONSE(
+                [],
+                "Unsuccessful",
+                e.errors,
+                e.message
+            )
+        );
     }
 };
 
@@ -62,11 +67,11 @@ export const create = async (req, res) => {
         fullName,
         phone,
         address,
-        gender
+        gender,
+        kiot_id
     } = req.body;
 
-    const { kiot_id, username } = req.users;
-
+    const { username } = req.users;
     try {
         if (!username
             || !fullName
@@ -88,22 +93,23 @@ export const create = async (req, res) => {
             kiot_id,
         });
 
-        res.send({
-            data: customerDoc,
-            message: "Create successfully",
-        });
-
+        res.send(
+            RESPONSE(
+                {
+                    [Fields.customerInfo]: customerDoc
+                },
+                "Create successful",
+            )
+        );
     } catch (e) {
-        let messages = [];
-        for (const key in e.errors) {
-            const element = e.errors[key];
-            messages.push(element.message);
-        }
-        res.status(400).send({
-            error: messages,
-            message: "Create unsuccessful",
-            catch: e.message
-        });
+        res.status(400).send(
+            RESPONSE(
+                [],
+                "Create unsuccessful",
+                e.errors,
+                e.message
+            )
+        );
     }
 };
 
@@ -132,21 +138,22 @@ export const update = async (req, res) => {
             transaction,
             rank
         });
-
-        res.send({
-            data: result,
-            message: "Update successfully",
-        });
+        res.send(
+            RESPONSE(
+                {
+                    [Fields.customerInfo]: result
+                },
+                "Update successful",
+            )
+        );
     } catch (e) {
-        let messages = [];
-        for (const key in e.errors) {
-            const element = e.errors[key];
-            messages.push(element.message);
-        }
-        res.status(400).send({
-            error: messages,
-            message: "Update unsuccessful",
-            catch: e.message
-        });
+        res.status(400).send(
+            RESPONSE(
+                [],
+                "Update unsuccessful",
+                e.errors,
+                e.message
+            )
+        );
     }
 };

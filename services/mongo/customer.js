@@ -74,7 +74,7 @@ export const customer_updateById = async (data) => {
 };
 
 export const customer_getAll = async () => {
-    return await CustomerModel.findOne({});
+    return await CustomerModel.find({});
 };
 
 export const customer_getById = async (id) => {
@@ -82,7 +82,7 @@ export const customer_getById = async (id) => {
 };
 
 export const customer_getByUserName = async (username, kiot_id) => {
-    return await CustomerModel.findOne({ username: username, kiot_id: kiot_id });
+    return await CustomerModel.find({ username: username, kiot_id: kiot_id });
 };
 
 export const customer_getAllByKiot = async (kiot_id) => {

@@ -19,6 +19,7 @@ export const kiot_create = async (username) => {
 
 export const kiot_updateById = async (data) => {
     const {
+        kiot_id,
         active,
         fullName,
         phone,
@@ -27,7 +28,7 @@ export const kiot_updateById = async (data) => {
         describe
     } = data;
 
-    const existingKiot = await customer_getById(customerId);
+    const existingKiot = await kiot_getById(kiot_id);
 
     if (!existingKiot) throw new Error("Kiot not already exist");
 
@@ -59,7 +60,7 @@ export const kiot_updateById = async (data) => {
 };
 
 export const kiot_getAll = async () => {
-    return await KiotModel.findOne({});
+    return await KiotModel.find({});
 };
 
 export const kiot_getById = async (id) => {
@@ -67,5 +68,5 @@ export const kiot_getById = async (id) => {
 };
 
 export const kiot_getByName = async (fullName) => {
-    return await KiotModel.findOne({ fullName: fullName });
+    return await KiotModel.find({ fullName: fullName });
 };
