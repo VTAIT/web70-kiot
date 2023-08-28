@@ -1,8 +1,17 @@
-import { product_create, product_getAll, product_getAllByKiot, product_getById, product_getByName, product_updateById } from "../services/mongo/product.js";
+import { ProductModel } from "../globals/mongodb.js";
+
+import {
+    product_create,
+    product_getAll,
+    product_getAllByKiot,
+    product_getById,
+    product_getByName,
+    product_updateById,
+} from "../services/mongo/product.js";
 
 export const getAll = async (req, res) => {
     const { kiot_id, role } = req.users;
-
+    console.log(req.users);
     let productFromDb = [];
 
     try {
@@ -13,9 +22,9 @@ export const getAll = async (req, res) => {
             productFromDb = await product_getAllByKiot(kiot_id);
         }
 
-        res.send({
-            data: productFromDb,
-            message: "Successful"
+        res.json({
+            data: { productList: productFromDb },
+            message: "Successful",
         });
     } catch (e) {
         let messages = [];
@@ -23,26 +32,26 @@ export const getAll = async (req, res) => {
             const element = e.errors[key];
             messages.push(element.message);
         }
-        res.status(400).send({
+        res.status(400).json({
             error: messages,
             message: "Unsuccessful",
-            catch: e.message
+            catch: e.message,
         });
     }
 
     // supper admin
-    if (role === 1) {
-        productFromDb = await ProductModel.find({});
-    } else {
-        if (kiot_id) {
-            productFromDb = await ProductModel.find({ kiot_id });
-        }
-    }
+    // if (role === 1) {
+    //     productFromDb = await ProductModel.find({});
+    // } else {
+    //     if (kiot_id) {
+    //         productFromDb = await ProductModel.find({ kiot_id });
+    //     }
+    // }
 
-    res.send({
-        data: productFromDb,
-        message: "Thành công"
-    });
+    // res.json({
+    //     data: productFromDb,
+    //     message: "Thành công",
+    // });
 };
 
 export const getById = async (req, res) => {
@@ -55,7 +64,7 @@ export const getById = async (req, res) => {
 
         res.send({
             data: productFromDb,
-            message: "Successful"
+            message: "Successful",
         });
     } catch (e) {
         let messages = [];
@@ -66,35 +75,51 @@ export const getById = async (req, res) => {
         res.status(400).send({
             error: messages,
             message: "Unsuccessful",
-            catch: e.message
+            catch: e.message,
         });
     }
 };
 
 export const create = async (req, res) => {
     const { id, kiot_id } = req.users;
-    const { name_product, price, image, category } = req.body;
+    const image = req.imageUrl;
+
+    const { product_name, price, category, description } = JSON.parse(
+        JSON.stringify(req.body)
+    ); // req.body = [Object: null prototype] { title: 'product' }
+
+    console.log({ product_name, price, category, description }); // { title: 'product' }
+    console.log(req.imageUrl);
+
     try {
-        if (!kiot_id
-            || !name_product
-            || !price
-            || !category
-        ) throw new Error("Missing required fields");
+        if (
+            !kiot_id ||
+            !product_name ||
+            !price ||
+            !category ||
+            !description ||
+            !image
+        )
+            throw new Error("Missing required fields");
 
-        if (await product_getByName(name_product, kiot_id)) throw new Error("Product has already exist");
+        const exist = await product_getByName(product_name, kiot_id, category);
 
-        const result = new product_create({
+        if (await product_getByName(product_name, kiot_id, category))
+            throw new Error("Product has already exist");
+
+        const result = product_create({
             kiot_id,
-            name_product,
+            product_name,
             price,
             image,
-            id,
+            user_id: id,
             category,
+            description,
         });
 
         res.send({
             data: result,
-            message: "Create successfully"
+            message: "Create successfully",
         });
     } catch (e) {
         let messages = [];
@@ -105,32 +130,25 @@ export const create = async (req, res) => {
         res.status(400).send({
             error: messages,
             message: "Create unsuccessful",
-            catch: e.message
+            catch: e.message,
         });
     }
 };
 
 export const update = async (req, res) => {
-    const {
-        productId,
-        active,
-        name_product,
-        price,
-        image,
-        category,
-        code
-    } = req.body;
+    const { productId, active, product_name, price, image, category, code } =
+        req.body;
     try {
         if (!productId) throw new Error("Missing required fields");
 
         const result = await product_updateById({
             productId,
             active,
-            name_product,
+            product_name,
             price,
             image,
             category,
-            code
+            code,
         });
 
         res.send({
@@ -146,7 +164,7 @@ export const update = async (req, res) => {
         res.status(400).send({
             error: messages,
             message: "Update unsuccessful",
-            catch: e.message
+            catch: e.message,
         });
     }
 };

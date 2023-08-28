@@ -1,5 +1,9 @@
 import { KiotModel } from "../globals/mongodb.js";
-import { kiot_getAll, kiot_getById, kiot_updateById } from "../services/mongo/kiot.js";
+import {
+    kiot_getAll,
+    kiot_getById,
+    kiot_updateById,
+} from "../services/mongo/kiot.js";
 
 export const getAll = async (req, res) => {
     const { role } = req.users;
@@ -9,9 +13,9 @@ export const getAll = async (req, res) => {
         if (role === 1) {
             kiotFromDb = await kiot_getAll();
 
-            res.send({
+            res.json({
                 data: kiotFromDb,
-                message: "Successful"
+                message: "Successful",
             });
         }
     } catch (e) {
@@ -23,7 +27,7 @@ export const getAll = async (req, res) => {
         res.status(400).send({
             error: messages,
             message: "Unsuccessful",
-            catch: e.message
+            catch: e.message,
         });
     }
 };
@@ -44,7 +48,7 @@ export const getById = async (req, res) => {
 
         res.send({
             data: kiotFromDb,
-            message: "Successful"
+            message: "Successful",
         });
     } catch (e) {
         let messages = [];
@@ -55,20 +59,13 @@ export const getById = async (req, res) => {
         res.status(400).send({
             error: messages,
             message: "Unsuccessful",
-            catch: e.message
+            catch: e.message,
         });
     }
 };
 
 export const update = async (req, res) => {
-    const {
-        active,
-        fullName,
-        phone,
-        email,
-        address,
-        describe
-    } = req.body;
+    const { active, fullName, phone, email, address, describe } = req.body;
 
     const { kiot_id } = req.users;
     try {
@@ -80,7 +77,7 @@ export const update = async (req, res) => {
             phone,
             email,
             address,
-            describe
+            describe,
         });
 
         res.send({
@@ -96,7 +93,7 @@ export const update = async (req, res) => {
         res.status(400).send({
             error: messages,
             message: "Update unsuccessful",
-            catch: e.message
+            catch: e.message,
         });
     }
 };

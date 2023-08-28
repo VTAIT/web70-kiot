@@ -1,6 +1,5 @@
 import { KiotModel } from "../../globals/mongodb.js";
 
-
 export const kiot_create = async (username) => {
     if (!username) throw new Error("Missing required fields");
 
@@ -11,21 +10,14 @@ export const kiot_create = async (username) => {
         phone: 0,
         address: "",
         active: true,
-        describe: ""
+        describe: "",
     });
 
     return await kiotDoc.save();
 };
 
 export const kiot_updateById = async (data) => {
-    const {
-        active,
-        fullName,
-        phone,
-        email,
-        address,
-        describe
-    } = data;
+    const { active, fullName, phone, email, address, describe } = data;
 
     const existingKiot = await customer_getById(customerId);
 
@@ -59,7 +51,7 @@ export const kiot_updateById = async (data) => {
 };
 
 export const kiot_getAll = async () => {
-    return await KiotModel.findOne({});
+    return await KiotModel.find({});
 };
 
 export const kiot_getById = async (id) => {

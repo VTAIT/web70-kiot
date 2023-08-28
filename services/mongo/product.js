@@ -2,43 +2,41 @@ import { ProductModel } from "../../globals/mongodb.js";
 
 export const product_create = async (data) => {
     const {
-        name_product,
+        kiot_id,
+        product_name,
         price,
         image,
-        kiot_id,
+        user_id,
         category,
-        id,
+        description,
     } = data;
 
     const productDoc = new ProductModel({
         kiot_id,
-        name_product,
+        product_name,
         price,
-        image: image ? image : "",
-        user_id: id,
+        image: image
+            ? image
+            : "http://dummyimage.com/420x420.png/dddddd/000000",
+        user_id,
         category,
         code: "",
-        active: true
+        active: true,
+        description,
     });
 
     return await productDoc.save();
 };
 
 export const product_updateById = async (data) => {
-    const {
-        productId,
-        active,
-        name_product,
-        price,
-        image,
-        category,
-        code
-    } = data;
+    const { productId, active, name_product, price, image, category, code } =
+        data;
 
     const existingProduct = await product_getById(productId);
 
     if (!existingProduct) throw new Error("Customer not already exist");
-    if (name_product === existingProduct.name_product) throw new Error("Product has already exist");
+    if (name_product === existingProduct.name_product)
+        throw new Error("Product has already exist");
 
     if (name_product) {
         existingProduct.name_product = name_product;
@@ -75,8 +73,12 @@ export const product_getById = async (id) => {
     return await ProductModel.findOne({ _id: id });
 };
 
-export const product_getByName = async (name_product, kiot_id) => {
-    return await ProductModel.findOne({ name_product: name_product, kiot_id: kiot_id });
+export const product_getByName = async (product_name, kiot_id, category) => {
+    return await ProductModel.findOne({
+        product_name: product_name,
+        kiot_id: kiot_id,
+        category: category,
+    });
 };
 
 export const product_getAllByKiot = async (kiot_id) => {
