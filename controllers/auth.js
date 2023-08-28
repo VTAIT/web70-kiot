@@ -28,7 +28,6 @@ export const loginController = async (req, res) => {
             role: existingUser.role_id,
             kiot_id: existingUser.kiot_id
         };
-
         const token = jwtSign(jwtPayload, 60 * 24);
 
         res.send(

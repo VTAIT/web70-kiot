@@ -1,19 +1,16 @@
 import { RESPONSE } from "../globals/api.js";
 import { Fields } from "../globals/fields.js";
-import { product_create, product_getAll, product_getAllByKiot, product_getById, product_getByName, product_updateById } from "../services/mongo/product.js";
-import { saleoff_getAll } from "../services/mongo/saleoff.js";
+import { saleoff_create, saleoff_getAll, saleoff_getAllByKiot, saleoff_getById, saleoff_getByName, saleoff_updateById } from "../services/mongo/saleoff.js";
 
 export const getAll = async (req, res) => {
     const { kiot_id, role } = req.users;
 
-    let productFromDb = [];
     let saleOffProductList = [];
     let saleOffTransactionList = [];
 
     try {
         // supper admin
         if (role === 1) {
-            productFromDb = await product_getAll();
             const saleOffFromDb = await saleoff_getAll();
             saleOffFromDb.forEach(e => {
                 const type = e.type;
@@ -24,8 +21,7 @@ export const getAll = async (req, res) => {
                 }
             })
         } else {
-            productFromDb = await product_getAllByKiot(kiot_id);
-            const saleOffFromDb = await saleoff_getAll();
+            const saleOffFromDb = await saleoff_getAllByKiot(kiot_id);
             saleOffFromDb.forEach(e => {
                 const type = e.type;
                 if (type === 1) {
@@ -38,7 +34,6 @@ export const getAll = async (req, res) => {
         res.send(
             RESPONSE(
                 {
-                    [Fields.productList]: productFromDb,
                     [Fields.saleOffProductList]: saleOffProductList,
                     [Fields.saleOffTransactionList]: saleOffTransactionList
                 },
@@ -64,12 +59,12 @@ export const getById = async (req, res) => {
     try {
         if (!id) throw new Error("Missing required fields");
 
-        const productFromDb = await product_getById(id);
+        const saleOffFromDb = await saleoff_getById(id);
 
         res.send(
             RESPONSE(
                 {
-                    [Fields.productInfo]: productFromDb
+                    [Fields.saleOffInfo]: saleOffFromDb
                 },
                 "Successful",
             )
@@ -88,28 +83,35 @@ export const getById = async (req, res) => {
 
 export const create = async (req, res) => {
     const { id } = req.users;
-    const { name_product, price, image, category, kiot_id } = req.body;
+    const {
+        kiot_id,
+        name_product,
+        price,
+        image,
+        type
+    } = req.body;
     try {
-        if (!kiot_id
+        if (
+            !id
+            || !kiot_id
             || !name_product
             || !price
-            || !category
         ) throw new Error("Missing required fields");
 
-        if (await product_getByName(name_product, kiot_id)) throw new Error("Product has already exist");
+        if (await saleoff_getByName(name_product, kiot_id)) throw new Error("Sale off has already exist");
 
-        const result = await product_create({
+        const result = await saleoff_create({
             kiot_id,
             name_product,
             price,
             image,
-            id,
-            category,
+            type,
+            id
         });
         res.send(
             RESPONSE(
                 {
-                    [Fields.productInfo]: result
+                    [Fields.saleOffInfo]: result
                 },
                 "Create successful",
             )
@@ -128,30 +130,28 @@ export const create = async (req, res) => {
 
 export const update = async (req, res) => {
     const {
-        productId,
-        active,
+        saleOffId,
         name_product,
         price,
         image,
-        category,
-        code
+        type,
+        active
     } = req.body;
     try {
-        if (!productId) throw new Error("Missing required fields");
+        if (!saleOffId) throw new Error("Missing required fields");
 
-        const result = await product_updateById({
-            productId,
-            active,
+        const result = await saleoff_updateById({
+            saleOffId,
             name_product,
             price,
             image,
-            category,
-            code
+            type,
+            active
         });
         res.send(
             RESPONSE(
                 {
-                    [Fields.productInfo]: result
+                    [Fields.saleOffInfo]: result
                 },
                 "Update successful",
             )

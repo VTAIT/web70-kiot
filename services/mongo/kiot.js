@@ -5,6 +5,7 @@ export const kiot_create = async (username) => {
     if (!username) throw new Error("Missing required fields");
 
     const kiotDoc = new KiotModel({
+        _id: 0,
         username,
         email: "noemail@gmail.com",
         fullName: `${username}`,

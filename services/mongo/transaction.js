@@ -14,6 +14,7 @@ export const transaction_create = async (data) => {
     const codeV = Number(new Date().toISOString().split("T")[0].replaceAll("-", ""));
 
     const transactionDoc = new TransactionModel({
+        _id: 0,
         username,
         kiot_id,
         status,

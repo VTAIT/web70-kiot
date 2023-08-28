@@ -1,9 +1,9 @@
 import { SeqModel } from "../globals/mongodb.js";
 import BaseSchema from "./base_schema.js";
 
-const ProductSchema = BaseSchema.clone();
+const SaleOffSchema = BaseSchema.clone();
 
-ProductSchema.add({
+SaleOffSchema.add({
     kiot_id: {
         type: String,
         cast: '{VALUE} is invalid',
@@ -25,21 +25,18 @@ ProductSchema.add({
         type: String,
         required: [true, 'User is required'],
     },
-    category: {
+    type: {
         type: Number,
-        required: [true, 'category is required'],
-    },
-    code: {
-        type: String,
+        required: [true, 'Type is required'],
     }
 });
 
-ProductSchema.pre('save', async function () {
+SaleOffSchema.pre('save', async function () {
     // Don't increment if this is NOT a newly created document
     if (!this.isNew) return;
 
-    const count = await SeqModel.increment('products');
+    const count = await SeqModel.increment('saleoffs');
     this._id = count;
 });
 
-export { ProductSchema };
+export { SaleOffSchema };

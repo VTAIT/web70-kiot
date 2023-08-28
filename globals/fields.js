@@ -9,7 +9,6 @@ const Fields = {
     productInfo:"productInfo",
     transactiontInfo:"transactiontInfo",
     saleOffInfo: "saleOffInfo",
-    saleOffTransactionInfo:"saleOffTransactionInfo",
     productList: "productList",
     acceptToken: "acceptToken",
     customerList: "customerList",

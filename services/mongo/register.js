@@ -14,6 +14,7 @@ export const register_create = async (data) => {
     const hashedPassword = await hashPassWord(password);
 
     const registerDoc = new RegisterModel({
+        _id: 0,
         username,
         password: hashedPassword,
         email: email ? email : 'noemail@gmail.com',
@@ -22,7 +23,8 @@ export const register_create = async (data) => {
         address,
         role_id: 2,
         active: true,
-        gender
+        gender,
+        status: 0
     });
 
     return await registerDoc.save();

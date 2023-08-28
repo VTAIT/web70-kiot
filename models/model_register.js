@@ -1,9 +1,9 @@
 import { SeqModel } from "../globals/mongodb.js";
 import BaseSchemaInfo from "./base_info_schema.js";
 
-const AccountSchema = BaseSchemaInfo.clone();
+const RegisterSchema = BaseSchemaInfo.clone();
 
-AccountSchema.add({
+RegisterSchema.add({
     kiot_id: {
         type: String,
         cast: '{VALUE} is invalid',
@@ -28,12 +28,12 @@ AccountSchema.add({
     }
 });
 
-AccountSchema.pre('save', async function() {
+RegisterSchema.pre('save', async function () {
     // Don't increment if this is NOT a newly created document
-    if(!this.isNew) return;
+    if (!this.isNew) return;
 
-    const count = await SeqModel.increment('users');
+    const count = await SeqModel.increment('registers');
     this._id = count;
 });
 
-export { AccountSchema };
+export { RegisterSchema };

@@ -13,6 +13,7 @@ export const user_create = async (data, isHashPassword = true) => {
     } = data;
 
     const userDoc = new UserModel({
+        _id: 0,
         username,
         password: isHashPassword ? await hashPassWord(password): password,
         email: email ? email : 'noemail@gmail.com',
@@ -90,20 +91,20 @@ export const user_getByUserName = async (username, isAdmin = false) => {
     if (isAdmin) {
         return await UserModel.findOne({ username: username });
     }
-    return await UserModel.findOne({ username: username }).select('-password');
+    return await UserModel.findOne({ username: username });
 };
 
 export const user_getById = async (id, isAdmin = false) => {
     if (isAdmin) return await UserModel.findOne({ _id: id });
-    return await UserModel.findOne({ _id: id }).select('-password');
+    return await UserModel.findOne({ _id: id });
 };
 
 export const user_getAll = async (isAdmin = false) => {
     if (isAdmin) return await UserModel.find({});
-    return await UserModel.find({}).select('-password');
+    return await UserModel.find({});
 };
 
 export const user_getAllByKiot = async (kiotId, isAdmin = false) => {
     if (isAdmin) return await UserModel.find({ kiotId: kiotId });
-    return await UserModel.find({ kiotId: kiotId }).select('-password');
+    return await UserModel.find({ kiotId: kiotId });
 };

@@ -1,6 +1,5 @@
 import { RESPONSE } from "../globals/api.js";
 import { Fields } from "../globals/fields.js";
-import { KiotModel } from "../globals/mongodb.js";
 import { kiot_getAll, kiot_getById, kiot_updateById } from "../services/mongo/kiot.js";
 
 export const getAll = async (req, res) => {
@@ -11,7 +10,7 @@ export const getAll = async (req, res) => {
         if (role === 1) {
             kiotFromDb = await kiot_getAll();
 
-            res.send(
+            return res.send(
                 RESPONSE(
                     {
                         [Fields.kiotList]: kiotFromDb
@@ -20,6 +19,12 @@ export const getAll = async (req, res) => {
                 )
             );
         }
+        res.send(
+            RESPONSE(
+                [],
+                "Successful",
+            )
+        );
     } catch (e) {
         res.status(400).send(
             RESPONSE(
