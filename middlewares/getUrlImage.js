@@ -16,7 +16,7 @@ const getUrlImage = async (req, res, next) => {
     ); // req.body = [Object: null prototype] { title: 'product' }
 
     try {
-        if (!kiot_id || !product_name || !price || !category || !description)
+        if (!product_name || !price || !category || !description)
             throw new Error("Missing required fields");
 
         const result = await cloudinary.uploader.upload(file.path, {

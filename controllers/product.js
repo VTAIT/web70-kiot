@@ -14,7 +14,7 @@ import { saleoff_getAll } from "../services/mongo/saleoff.js";
 
 export const getAll = async (req, res) => {
     const { kiot_id, role } = req.users;
-    console.log(req.users);
+
     let productFromDb = [];
     let saleOffProductList = [];
     let saleOffTransactionList = [];
@@ -84,30 +84,25 @@ export const create = async (req, res) => {
     const { id, kiot_id } = req.users;
     const image = req.imageUrl;
 
-    const { product_name, price, category, description } = JSON.parse(
-        JSON.stringify(req.body)
-    ); // req.body = [Object: null prototype] { title: 'product' }
+    const body = JSON.parse(JSON.stringify(req.body)); // req.body = [Object: null prototype] { title: 'product' }
 
-    console.log(image);
-    console.log({ product_name, price, category, description });
+    const { product_name, price, category, description } = body;
+
     try {
-        if (
-            !kiot_id ||
-            !product_name ||
-            !price ||
-            !category ||
-            !description ||
-            !image
-        )
+        if (!product_name || !price || !category || !description || !image)
             throw new Error("Missing required fields");
 
-        const exist = await product_getByName(product_name, kiot_id, category);
+        const exist = await product_getByName(
+            product_name,
+            kiot_id ? liot_id : body.kiot_id,
+            category
+        );
+        console.log(exist);
 
-        if (await product_getByName(product_name, kiot_id, category))
-            throw new Error("Product has already exist");
+        if (exist) throw new Error("Product has already exist");
 
         const result = await product_create({
-            kiot_id,
+            kiot_id: kiot_id ? liot_id : body.kiot_id,
             product_name,
             price,
             image,
