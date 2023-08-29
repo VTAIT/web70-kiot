@@ -95,7 +95,6 @@ export const saleoff_getAllByKiot = async (kiot_id, cussor = -1) => {
 export const saleoff_getByArray = async (array) => {
     let query = {};
     if (array.length) {
-        console.log(query, array)
         query[Fields.name_product] = { $in: array };
         query[Fields.type] = 1
     }

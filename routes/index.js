@@ -6,6 +6,7 @@ import KiotRoute from "./kiot/index.js";
 import CustomerRoute from "./customer/index.js";
 import TransactionRoute from "./transaction/index.js";
 import SaleOffRoute from "./saleoff/index.js";
+import ImageRoute from "./image/index.js";
 
 const RootRoute = Router();
 
@@ -16,5 +17,6 @@ RootRoute.use("/kiot", KiotRoute);
 RootRoute.use("/customer", CustomerRoute);
 RootRoute.use("/transaction", TransactionRoute);
 RootRoute.use("/saleoff", SaleOffRoute);
+RootRoute.use("/image", ImageRoute);
 
 export default RootRoute;

@@ -40,7 +40,7 @@ export const getAll = async (req, res) => {
                 {
                     [Fields.saleOffProductList]: saleOffProductList,
                     [Fields.saleOffTransactionList]: saleOffTransactionList,
-                    [Fields.cussor]: saleOffFromDb[limit - 1]._id - 1
+                    [Fields.cussor]: saleOffFromDb.slice(-1)[0]._id - 1
                 },
                 "Successful",
             )

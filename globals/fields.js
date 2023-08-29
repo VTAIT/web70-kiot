@@ -9,6 +9,7 @@ const Fields = {
     customerInfo: "customerInfo",
     kiotInfo: "kiotInfo",
     productInfo: "productInfo",
+    imageInfo: "imageInfo",
     transactiontInfo: "transactiontInfo",
     saleOffInfo: "saleOffInfo",
     productList: "productList",
@@ -19,6 +20,7 @@ const Fields = {
     saleOffProductList: "saleOffProductList",
     saleOffTransactionList: "saleOffTransactionList",
     kiotList: "kiotList",
+    imageList:"imageList",
     CodeMessage: "CodeMessage",
 
     id: "_id",

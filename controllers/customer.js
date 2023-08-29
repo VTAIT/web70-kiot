@@ -21,7 +21,7 @@ export const getAll = async (req, res) => {
             RESPONSE(
                 {
                     [Fields.customerList]: customerFromDb,
-                    [Fields.cussor]: customerFromDb[limit - 1]._id - 1
+                    [Fields.cussor]: customerFromDb.slice(-1)[0]._id - 1
                 },
                 "Successful",
             )

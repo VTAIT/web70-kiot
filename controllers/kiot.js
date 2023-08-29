@@ -19,7 +19,7 @@ export const getAll = async (req, res) => {
             RESPONSE(
                 {
                     [Fields.kiotList]: kiotFromDb,
-                    [Fields.cussor]: kiotFromDb[limit - 1]._id - 1
+                    [Fields.cussor]: kiotFromDb.slice(-1)[0]._id - 1
                 },
                 "Successful",
             )

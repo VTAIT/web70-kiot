@@ -1,8 +1,7 @@
 import { RESPONSE } from "../globals/api.js";
-import { limit } from "../globals/config.js";
 import { Fields } from "../globals/fields.js";
 import { product_create, product_getAll, product_getAllByKiot, product_getById, product_getByName, product_updateById } from "../services/mongo/product.js";
-import { saleoff_getAll, saleoff_getAllByKiot, saleoff_getByArray, saleoff_getByTracsaction } from "../services/mongo/saleoff.js";
+import { saleoff_getByArray, saleoff_getByTracsaction } from "../services/mongo/saleoff.js";
 
 export const getAll = async (req, res) => {
     try {
@@ -46,7 +45,7 @@ export const getAll = async (req, res) => {
                     [Fields.productList]: productFromDb,
                     [Fields.saleOffProductList]: saleOffProductList,
                     [Fields.saleOffTransactionList]: saleOffTransactionList,
-                    [Fields.cussor]: productFromDb[limit-1]._id - 1
+                    [Fields.cussor]: productFromDb.slice(-1)[0]._id - 1
                 },
                 "Successful",
             )

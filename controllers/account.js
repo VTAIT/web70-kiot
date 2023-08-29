@@ -25,7 +25,7 @@ export const getAll = async (req, res) => {
             RESPONSE(
                 {
                     [Fields.accountList]: accountFromDb,
-                    [Fields.cussor]: accountFromDb[limit - 1]._id - 1
+                    [Fields.cussor]: accountFromDb.slice(-1)[0]._id - 1
                 },
                 "Successful",
             )
@@ -182,7 +182,7 @@ export const getAllAccept = async (req, res) => {
             RESPONSE(
                 {
                     [Fields.accountList]: RegisterFromDb,
-                    [Fields.cussor]: RegisterFromDb[limit - 1]._id - 1
+                    [Fields.cussor]: RegisterFromDb.slice(-1)[0]._id - 1
                 },
                 "Successful",
             )

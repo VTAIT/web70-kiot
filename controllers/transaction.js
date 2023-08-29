@@ -1,5 +1,4 @@
 import { RESPONSE } from "../globals/api.js";
-import { limit } from "../globals/config.js";
 import { Fields } from "../globals/fields.js";
 import { transaction_create, transaction_getAll, transaction_getAllByKiot, transaction_getById, transaction_updateById } from "../services/mongo/transaction.js";
 
@@ -21,7 +20,7 @@ export const getAll = async (req, res) => {
             RESPONSE(
                 {
                     [Fields.transactionList]: transactionFromDb,
-                    [Fields.cussor]: transactionFromDb[limit - 1]._id - 1
+                    [Fields.cussor]: transactionFromDb.slice(-1)[0]._id - 1
                 },
                 "Successful",
             )
@@ -81,11 +80,11 @@ export const create = async (req, res) => {
 
         if (!username || !kiot_id || !status) throw new Error("Missing required fields");
 
-        if (status === 2 && (!retrun_list?.length || !returnV || returnV <= 0)) throw new Error("Missing required fields, status 2");
+        if (status === 2 && (!retrun_list?.slice(-1)[0] || !returnV || returnV <= 0)) throw new Error("Missing required fields, status 2");
 
         if (status === 3 && (!deposit || deposit <= 0)) throw new Error("Missing required fields, status 3");
 
-        if ([1, 3, 4].includes(status) && !product_list?.length) throw new Error("Missing required fields, status 134");
+        if ([1, 3, 4].includes(status) && !product_list?.slice(-1)[0]) throw new Error("Missing required fields, status 134");
 
         const transactionDoc = await transaction_create({
             username,

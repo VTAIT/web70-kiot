@@ -8,6 +8,7 @@ import { TransactionSchema } from "../models/model_transaction.js";
 import { SaleOffSchema } from "../models/model_saleoff.js";
 import { SeqSchema } from "../models/model_seq.js";
 import { RegisterSchema } from "../models/model_register.js";
+import { ImageSchema } from "../models/model_image.js";
 
 const connectDB = async () => {
   try {
@@ -27,6 +28,7 @@ const KiotModel = mongoose.model('kiots', KiotSchema);
 const CustomerModel = mongoose.model('customers', CustomerSchema);
 const TransactionModel = mongoose.model('transactions', TransactionSchema);
 const SaleOffModel = mongoose.model('saleoffs', SaleOffSchema);
+const ImageModel = mongoose.model('images', ImageSchema);
 const SeqModel = mongoose.model('seqs', SeqSchema);
 
-export { connectDB, UserModel, ProductModel, RegisterModel, KiotModel, CustomerModel, TransactionModel, SaleOffModel, SeqModel };
+export { connectDB, UserModel, ProductModel, RegisterModel, KiotModel, CustomerModel, TransactionModel, SaleOffModel, ImageModel, SeqModel };
