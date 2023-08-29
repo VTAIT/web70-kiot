@@ -1,4 +1,5 @@
 import { hashPassWord, limit } from "../../globals/config.js";
+import { Fields } from "../../globals/fields.js";
 import { RegisterModel } from "../../globals/mongodb.js";
 
 export const register_create = async (data) => {
