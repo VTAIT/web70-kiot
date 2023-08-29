@@ -1,4 +1,5 @@
-import { hashPassWord } from "../../globals/config.js";
+import { hashPassWord, limit } from "../../globals/config.js";
+import { Fields } from "../../globals/fields.js";
 import { UserModel } from "../../globals/mongodb.js";
 
 export const user_create = async (data, isHashPassword = true) => {
@@ -15,7 +16,7 @@ export const user_create = async (data, isHashPassword = true) => {
     const userDoc = new UserModel({
         _id: 0,
         username,
-        password: isHashPassword ? await hashPassWord(password): password,
+        password: isHashPassword ? await hashPassWord(password) : password,
         email: email ? email : 'noemail@gmail.com',
         fullName,
         phone,
@@ -43,7 +44,7 @@ export const user_updateById = async (data) => {
         status
     } = data;
 
-    const existingUser = await user_getById(userId);
+    const existingUser = await user_getById(userId, true);
 
     if (!existingUser) throw new Error("User not already exist");
 
@@ -87,24 +88,34 @@ export const user_updateById = async (data) => {
     return await existingUser.save();
 };
 
-export const user_getByUserName = async (username, isAdmin = false) => {
-    if (isAdmin) {
-        return await UserModel.findOne({ username: username });
+export const user_getByUserName = async (username, isShowPassword = false) => {
+    if (isShowPassword) return await UserModel.findOne({ username: username });
+    return await UserModel.findOne({ username: username }).select("-password");;
+};
+
+export const user_getById = async (id, isShowPassword = false) => {
+    if (isShowPassword) return await UserModel.findOne({ _id: id })
+    return await UserModel.findOne({ _id: id }).select("-password");
+};
+
+export const user_getAll = async (isShowPassword = false, cussor = -1) => {
+    let query = {};
+
+    if (cussor > 0) {
+        query[Fields.id] = { $lte: cussor };
     }
-    return await UserModel.findOne({ username: username });
+
+    if (isShowPassword) return await UserModel.find(query).sort({ [Fields.id]: -1 }).limit(limit);
+    return await UserModel.find(query).sort({ [Fields.id]: -1 }).limit(limit).select("-password");
 };
 
-export const user_getById = async (id, isAdmin = false) => {
-    if (isAdmin) return await UserModel.findOne({ _id: id });
-    return await UserModel.findOne({ _id: id });
-};
+export const user_getAllByKiot = async (kiotId, isShowPassword = false, cussor = -1) => {
+    let query = { kiotId: kiotId };
 
-export const user_getAll = async (isAdmin = false) => {
-    if (isAdmin) return await UserModel.find({});
-    return await UserModel.find({});
-};
+    if (cussor > 0) {
+        query[Fields.id] = { $lte: cussor };
+    }
 
-export const user_getAllByKiot = async (kiotId, isAdmin = false) => {
-    if (isAdmin) return await UserModel.find({ kiotId: kiotId });
-    return await UserModel.find({ kiotId: kiotId });
+    if (isShowPassword) return awaitUserModel.find(query).sort({ [Fields.id]: -1 }).limit(limit);
+    return await UserModel.find(query).sort({ [Fields.id]: -1 }).limit(limit).select("-password");
 };

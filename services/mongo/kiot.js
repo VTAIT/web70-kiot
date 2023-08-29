@@ -1,3 +1,4 @@
+import { limit } from "../../globals/config.js";
 import { KiotModel } from "../../globals/mongodb.js";
 
 export const kiot_create = async (username) => {
@@ -51,8 +52,16 @@ export const kiot_updateById = async (data) => {
     return await existingKiot.save();
 };
 
-export const kiot_getAll = async () => {
-    return await KiotModel.find({});
+export const kiot_getAll = async (cussor = -1) => {
+    let query = {};
+
+    if (cussor > 0) {
+        query[Fields.id] = { $lte: cussor };
+    }
+
+    return await KiotModel.find(query)
+        .sort({ [Fields.id]: -1 })
+        .limit(limit);
 };
 
 export const kiot_getById = async (id) => {
@@ -60,5 +69,5 @@ export const kiot_getById = async (id) => {
 };
 
 export const kiot_getByName = async (fullName) => {
-    return await KiotModel.find({ fullName: fullName });
+    return await KiotModel.findOne({ fullName: fullName });
 };

@@ -1,3 +1,5 @@
+import { limit } from "../../globals/config.js";
+import { Fields } from "../../globals/fields.js";
 import { SaleOffModel } from "../../globals/mongodb.js";
 
 export const saleoff_create = async (data) => {
@@ -64,8 +66,13 @@ export const saleoff_updateById = async (data) => {
     return await existingSaleOff.save();
 };
 
-export const saleoff_getAll = async () => {
-    return await SaleOffModel.find({});
+export const saleoff_getAll = async (cussor = -1) => {
+    let query = {};
+
+    if (cussor > 0) {
+        query[Fields.id] = { $lte: cussor };
+    }
+    return await SaleOffModel.find(query).sort({ [Fields.id]: -1 }).limit(limit);
 };
 
 export const saleoff_getById = async (id) => {
@@ -76,6 +83,28 @@ export const saleoff_getByName = async (name_product, kiot_id) => {
     return await SaleOffModel.findOne({ name_product: name_product, kiot_id: kiot_id });
 };
 
-export const saleoff_getAllByKiot = async (kiot_id) => {
-    return await SaleOffModel.find({ kiot_id: kiot_id });
+export const saleoff_getAllByKiot = async (kiot_id, cussor = -1) => {
+    let query = { kiot_id: kiot_id };
+
+    if (cussor > 0) {
+        query[Fields.id] = { $lte: cussor };
+    }
+    return await SaleOffModel.find(query).sort({ [Fields.id]: -1 }).limit(limit);
+};
+
+export const saleoff_getByArray = async (array) => {
+    let query = {};
+    if (array.length) {
+        query[Fields.name_product] = { $in: array };
+        query[Fields.type] = 1
+    }
+    return await SaleOffModel.find(query);
+};
+
+export const saleoff_getByTracsaction = async (kiot_id) => {
+    let query = {
+        kiot_id: kiot_id,
+        [Fields.type]: 2
+    };
+    return await SaleOffModel.find(query).sort({ [Fields.id]: -1 });
 };

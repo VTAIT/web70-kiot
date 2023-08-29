@@ -1,4 +1,5 @@
-import { hashPassWord } from "../../globals/config.js";
+import { hashPassWord, limit } from "../../globals/config.js";
+import { Fields } from "../../globals/fields.js";
 import { RegisterModel } from "../../globals/mongodb.js";
 
 export const register_create = async (data) => {
@@ -30,8 +31,13 @@ export const register_create = async (data) => {
     return await registerDoc.save();
 };
 
-export const registe_getAll = async () => {
-    return await RegisterModel.find({});
+export const registe_getAll = async (cussor = -1) => {
+    let query = {};
+
+    if (cussor > 0) {
+        query[Fields.id] = { $lte: cussor };
+    }
+    return await RegisterModel.find(query).sort({ [Fields.id]: -1 }).limit(limit).select("-password");
 };
 
 export const registe_getById = async (id) => {
@@ -39,5 +45,5 @@ export const registe_getById = async (id) => {
 };
 
 export const registe_getByUserName = async (username) => {
-    return await RegisterModel.findOne({ username: username });
+    return await RegisterModel.find({ username: username }).select("-password");
 };

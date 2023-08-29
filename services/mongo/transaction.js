@@ -30,12 +30,12 @@ export const transaction_create = async (data) => {
 
 export const transaction_updateById = async (data) => {
     const {
-        transactionId, 
-        status, 
-        deposit, 
-        returnV, 
-        retrun_list, 
-        product_list 
+        transactionId,
+        status,
+        deposit,
+        returnV,
+        retrun_list,
+        product_list
     } = data;
 
     const existingTransaction = await transaction_getById(transactionId);
@@ -68,8 +68,14 @@ export const transaction_updateById = async (data) => {
     return await existingTransaction.save();
 };
 
-export const transaction_getAll = async () => {
-    return await TransactionModel.find({});
+export const transaction_getAll = async (cussor = -1) => {
+    let query = {};
+
+    if (cussor > 0) {
+        query[Fields.id] = { $lte: cussor };
+    }
+
+    return await TransactionModel.find(query).sort({ [Fields.id]: -1 }).limit(limit);;
 };
 
 export const transaction_getById = async (id) => {
@@ -80,6 +86,11 @@ export const transaction_getByName = async (name_product, kiot_id) => {
     return await TransactionModel.findOne({ name_product: name_product, kiot_id: kiot_id });
 };
 
-export const transaction_getAllByKiot = async (kiot_id) => {
-    return await TransactionModel.find({ kiot_id: kiot_id });
+export const transaction_getAllByKiot = async (kiot_id, cussor = -1) => {
+    let query = { kiot_id: kiot_id };
+
+    if (cussor > 0) {
+        query[Fields.id] = { $lte: cussor };
+    }
+    return await TransactionModel.find(query).sort({ [Fields.id]: -1 }).limit(limit);
 };

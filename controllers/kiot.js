@@ -1,4 +1,5 @@
 import { RESPONSE } from "../globals/api.js";
+import { limit } from "../globals/config.js";
 import { Fields } from "../globals/fields.js";
 import {
     kiot_getAll,
@@ -8,22 +9,25 @@ import {
 
 export const getAll = async (req, res) => {
     const { role } = req.users;
+    let cussor = req.query[Fields.cussor];
+    if (!Number(cussor)) cussor = -1;
 
     let kiotFromDb = [];
-    try {
-        if (role === 1) {
-            kiotFromDb = await kiot_getAll();
 
-            return res.send(
-                RESPONSE(
-                    {
-                        [Fields.kiotList]: kiotFromDb,
-                    },
-                    "Successful"
-                )
-            );
-        }
-        res.send(RESPONSE([], "Successful"));
+    try {
+        if (role !== 1) throw new Error("You not right");
+
+        kiotFromDb = await kiot_getAll(cussor);
+
+        return res.send(
+            RESPONSE(
+                {
+                    [Fields.kiotList]: kiotFromDb,
+                    [Fields.cussor]: kiotFromDb.slice(-1)[0]._id - 1,
+                },
+                "Successful"
+            )
+        );
     } catch (e) {
         res.status(400).send(RESPONSE([], "Unsuccessful", e.errors, e.message));
     }

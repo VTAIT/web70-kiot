@@ -66,8 +66,8 @@ export const registerController = async (req, res) => {
             throw new Error("User has already exist");
 
         // Tránh đăng ký 2 lần giống nhau
-        if (await registe_getByUserName(username))
-            throw new Error("Register has already exist");
+        const registerList = await registe_getByUserName(username);
+        if (registerList.length) throw new Error("Register has already exist");
 
         // 3 Create new register object
         const newRegister = await register_create({
@@ -101,8 +101,8 @@ export const getMeController = async (req, res) => {
     console.log(req.users);
     try {
         const currentUser = await user_getById(id);
-        console.log(currentUser);
-        res.json(
+
+        res.send(
             RESPONSE(
                 {
                     [Fields.userInfo]: currentUser,

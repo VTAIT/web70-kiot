@@ -1,17 +1,21 @@
 import { RESPONSE } from "../globals/api.js";
+import { limit } from "../globals/config.js";
 import { Fields } from "../globals/fields.js";
 import { saleoff_create, saleoff_getAll, saleoff_getAllByKiot, saleoff_getById, saleoff_getByName, saleoff_updateById } from "../services/mongo/saleoff.js";
 
 export const getAll = async (req, res) => {
     const { kiot_id, role } = req.users;
+    let cussor = req.query[Fields.cussor];
+    if (!Number(cussor)) cussor = -1;
 
+    let saleOffFromDb = [];
     let saleOffProductList = [];
     let saleOffTransactionList = [];
 
     try {
         // supper admin
         if (role === 1) {
-            const saleOffFromDb = await saleoff_getAll();
+            saleOffFromDb = await saleoff_getAll(cussor);
             saleOffFromDb.forEach(e => {
                 const type = e.type;
                 if (type === 1) {
@@ -21,7 +25,7 @@ export const getAll = async (req, res) => {
                 }
             })
         } else {
-            const saleOffFromDb = await saleoff_getAllByKiot(kiot_id);
+            saleOffFromDb = await saleoff_getAllByKiot(kiot_id, cussor);
             saleOffFromDb.forEach(e => {
                 const type = e.type;
                 if (type === 1) {
@@ -35,7 +39,8 @@ export const getAll = async (req, res) => {
             RESPONSE(
                 {
                     [Fields.saleOffProductList]: saleOffProductList,
-                    [Fields.saleOffTransactionList]: saleOffTransactionList
+                    [Fields.saleOffTransactionList]: saleOffTransactionList,
+                    [Fields.cussor]: saleOffFromDb.slice(-1)[0]._id - 1
                 },
                 "Successful",
             )

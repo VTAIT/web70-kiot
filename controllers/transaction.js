@@ -4,20 +4,23 @@ import { transaction_create, transaction_getAll, transaction_getAllByKiot, trans
 
 export const getAll = async (req, res) => {
     const { kiot_id, role } = req.users;
+    let cussor = req.query[Fields.cussor];
+    if (!Number(cussor)) cussor = -1;
 
     let transactionFromDb = [];
 
     try {
         // supper admin
         if (role === 1) {
-            transactionFromDb = await transaction_getAll();
+            transactionFromDb = await transaction_getAll(cussor);
         } else {
-            transactionFromDb = await transaction_getAllByKiot(kiot_id);
+            transactionFromDb = await transaction_getAllByKiot(kiot_id, cussor);
         }
         res.send(
             RESPONSE(
                 {
-                    [Fields.transactionList]: transactionFromDb
+                    [Fields.transactionList]: transactionFromDb,
+                    [Fields.cussor]: transactionFromDb.slice(-1)[0]._id - 1
                 },
                 "Successful",
             )
@@ -77,11 +80,11 @@ export const create = async (req, res) => {
 
         if (!username || !kiot_id || !status) throw new Error("Missing required fields");
 
-        if (status === 2 && (!retrun_list?.length || !returnV || returnV <= 0)) throw new Error("Missing required fields, status 2");
+        if (status === 2 && (!retrun_list?.slice(-1)[0] || !returnV || returnV <= 0)) throw new Error("Missing required fields, status 2");
 
         if (status === 3 && (!deposit || deposit <= 0)) throw new Error("Missing required fields, status 3");
 
-        if ([1, 3, 4].includes(status) && !product_list?.length) throw new Error("Missing required fields, status 134");
+        if ([1, 3, 4].includes(status) && !product_list?.slice(-1)[0]) throw new Error("Missing required fields, status 134");
 
         const transactionDoc = await transaction_create({
             username,
