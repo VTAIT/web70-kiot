@@ -1,23 +1,27 @@
 import { RESPONSE } from "../globals/api.js";
+import { limit } from "../globals/config.js";
 import { Fields } from "../globals/fields.js";
 import { transaction_create, transaction_getAll, transaction_getAllByKiot, transaction_getById, transaction_updateById } from "../services/mongo/transaction.js";
 
 export const getAll = async (req, res) => {
     const { kiot_id, role } = req.users;
+    let cussor = req.query[Fields.cussor];
+    if (!Number(cussor)) cussor = -1;
 
     let transactionFromDb = [];
 
     try {
         // supper admin
         if (role === 1) {
-            transactionFromDb = await transaction_getAll();
+            transactionFromDb = await transaction_getAll(cussor);
         } else {
-            transactionFromDb = await transaction_getAllByKiot(kiot_id);
+            transactionFromDb = await transaction_getAllByKiot(kiot_id, cussor);
         }
         res.send(
             RESPONSE(
                 {
-                    [Fields.transactionList]: transactionFromDb
+                    [Fields.transactionList]: transactionFromDb,
+                    [Fields.cussor]: transactionFromDb[limit - 1]._id - 1
                 },
                 "Successful",
             )

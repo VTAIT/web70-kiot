@@ -1,22 +1,27 @@
 import { RESPONSE } from "../globals/api.js";
+import { limit } from "../globals/config.js";
 import { Fields } from "../globals/fields.js";
 import { customer_create, customer_getAll, customer_getAllByKiot, customer_getById, customer_getByUserName, customer_updateById } from "../services/mongo/customer.js";
 
 export const getAll = async (req, res) => {
     const { kiot_id, role } = req.users;
+    let cussor = req.query[Fields.cussor];
 
+    if (!Number(cussor)) cussor = -1;
     let customerFromDb = [];
+
     try {
         // supper admin
         if (role === 1) {
-            customerFromDb = await customer_getAll();
+            customerFromDb = await customer_getAll(cussor);
         } else {
-            customerFromDb = await customer_getAllByKiot(kiot_id);
+            customerFromDb = await customer_getAllByKiot(kiot_id, cussor);
         }
         res.send(
             RESPONSE(
                 {
-                    [Fields.customerList]: customerFromDb
+                    [Fields.customerList]: customerFromDb,
+                    [Fields.cussor]: customerFromDb[limit - 1]._id - 1
                 },
                 "Successful",
             )

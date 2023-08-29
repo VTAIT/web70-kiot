@@ -1,30 +1,30 @@
 import { RESPONSE } from "../globals/api.js";
+import { limit } from "../globals/config.js";
 import { Fields } from "../globals/fields.js";
 import { kiot_getAll, kiot_getById, kiot_updateById } from "../services/mongo/kiot.js";
 
 export const getAll = async (req, res) => {
     const { role } = req.users;
+    let cussor = req.query[Fields.cussor];
+    if (!Number(cussor)) cussor = -1;
 
     let kiotFromDb = [];
-    try {
-        if (role === 1) {
-            kiotFromDb = await kiot_getAll();
 
-            return res.send(
-                RESPONSE(
-                    {
-                        [Fields.kiotList]: kiotFromDb
-                    },
-                    "Successful",
-                )
-            );
-        }
-        res.send(
+    try {
+        if (role !== 1) throw new Error('You not right');
+
+        kiotFromDb = await kiot_getAll(cussor);
+
+        return res.send(
             RESPONSE(
-                [],
+                {
+                    [Fields.kiotList]: kiotFromDb,
+                    [Fields.cussor]: kiotFromDb[limit - 1]._id - 1
+                },
                 "Successful",
             )
         );
+
     } catch (e) {
         res.status(400).send(
             RESPONSE(

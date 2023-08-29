@@ -99,6 +99,7 @@ export const getMeController = async (req, res) => {
     const { id } = req.users;
     try {
         const currentUser = await user_getById(id);
+
         res.send(
             RESPONSE(
                 {

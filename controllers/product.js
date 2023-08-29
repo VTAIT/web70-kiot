@@ -1,20 +1,28 @@
 import { RESPONSE } from "../globals/api.js";
+import { limit } from "../globals/config.js";
 import { Fields } from "../globals/fields.js";
 import { product_create, product_getAll, product_getAllByKiot, product_getById, product_getByName, product_updateById } from "../services/mongo/product.js";
-import { saleoff_getAll } from "../services/mongo/saleoff.js";
+import { saleoff_getAll, saleoff_getAllByKiot, saleoff_getByArray, saleoff_getByTracsaction } from "../services/mongo/saleoff.js";
 
 export const getAll = async (req, res) => {
-    const { kiot_id, role } = req.users;
-
-    let productFromDb = [];
-    let saleOffProductList = [];
-    let saleOffTransactionList = [];
-
     try {
+        const { kiot_id, role } = req.users;
+
+        let cussor = req.query[Fields.cussor];
+        if (!Number(cussor)) cussor = -1;
+
+        let productFromDb = [];
+        let saleOffProductList = [];
+        let saleOffTransactionList = [];
+
         // supper admin
         if (role === 1) {
-            productFromDb = await product_getAll();
-            const saleOffFromDb = await saleoff_getAll();
+            productFromDb = await product_getAll(cussor);
+            let array = [];
+            productFromDb.forEach(e => {
+                array.push(e.name_product);
+            });
+            const saleOffFromDb = await saleoff_getByArray(array);
             saleOffFromDb.forEach(e => {
                 const type = e.type;
                 if (type === 1) {
@@ -24,29 +32,28 @@ export const getAll = async (req, res) => {
                 }
             })
         } else {
-            productFromDb = await product_getAllByKiot(kiot_id);
-            const saleOffFromDb = await saleoff_getAll();
-            saleOffFromDb.forEach(e => {
-                const type = e.type;
-                if (type === 1) {
-                    saleOffProductList.push(e);
-                } else if (type === 2) {
-                    saleOffTransactionList.push(e)
-                }
-            })
+            productFromDb = await product_getAllByKiot(kiot_id, cussor);
+            let array = [];
+            productFromDb.forEach(e => {
+                array.push(e.name_product);
+            });
+            saleOffProductList = await saleoff_getByArray(array);
+            saleOffTransactionList = await saleoff_getByTracsaction(kiot_id);
         }
         res.send(
             RESPONSE(
                 {
                     [Fields.productList]: productFromDb,
                     [Fields.saleOffProductList]: saleOffProductList,
-                    [Fields.saleOffTransactionList]: saleOffTransactionList
+                    [Fields.saleOffTransactionList]: saleOffTransactionList,
+                    [Fields.cussor]: productFromDb[limit-1]._id - 1
                 },
                 "Successful",
             )
         );
 
     } catch (e) {
+        console.log(e)
         res.status(400).send(
             RESPONSE(
                 [],
@@ -59,7 +66,7 @@ export const getAll = async (req, res) => {
 };
 
 export const getById = async (req, res) => {
-    const id = req.query["Did"];
+    const id = req.query[Fields.did];
 
     try {
         if (!id) throw new Error("Missing required fields");

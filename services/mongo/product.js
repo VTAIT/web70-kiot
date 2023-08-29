@@ -1,3 +1,5 @@
+import { limit } from "../../globals/config.js";
+import { Fields } from "../../globals/fields.js";
 import { ProductModel } from "../../globals/mongodb.js";
 
 export const product_create = async (data) => {
@@ -68,8 +70,14 @@ export const product_updateById = async (data) => {
     return await existingProduct.save();
 };
 
-export const product_getAll = async () => {
-    return await ProductModel.find({});
+export const product_getAll = async (cussor = -1) => {
+    let query = {};
+
+    if (cussor > 0) {
+        query[Fields.id] = { $lte: cussor };
+    }
+
+    return await ProductModel.find(query).sort({ [Fields.id]: -1 }).limit(limit);
 };
 
 export const product_getById = async (id) => {
@@ -80,6 +88,12 @@ export const product_getByName = async (name_product, kiot_id) => {
     return await ProductModel.findOne({ name_product: name_product, kiot_id: kiot_id });
 };
 
-export const product_getAllByKiot = async (kiot_id) => {
-    return await ProductModel.find({ kiot_id: kiot_id });
+export const product_getAllByKiot = async (kiot_id, cussor = -1) => { 
+    let query = { kiot_id: kiot_id };
+
+    if (cussor > 0) {
+        query[Fields.id] = { $lte: cussor };
+    }
+
+    return await ProductModel.find(query).sort({ [Fields.id]: -1 }).limit(limit);
 };

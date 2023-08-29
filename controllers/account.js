@@ -1,4 +1,4 @@
-import { hashPassWord } from "../globals/config.js";
+import { hashPassWord, limit } from "../globals/config.js";
 import { user_create, user_getAll, user_getAllByKiot, user_getById, user_getByUserName, user_updateById } from "../services/mongo/user.js";
 import { kiot_create } from "../services/mongo/kiot.js";
 import { registe_getAll, registe_getById } from "../services/mongo/register.js";
@@ -6,21 +6,26 @@ import { RESPONSE } from "../globals/api.js";
 import { Fields } from "../globals/fields.js";
 
 export const getAll = async (req, res) => {
-    const { kiot_id, role } = req.users;
-
-    let accountFromDb = [];
     try {
+        const { kiot_id, role } = req.users;
+
+        let cussor = req.query[Fields.cussor];
+        if (!Number(cussor)) cussor = -1;
+
+        let accountFromDb = [];
+
         // supper admin
         if (role === 1) {
-            accountFromDb = await user_getAll(role);
+            accountFromDb = await user_getAll(cussor);
         } else {
-            accountFromDb = await user_getAllByKiot({ kiot_id });
+            accountFromDb = await user_getAllByKiot(kiot_id, cussor);
         }
 
         res.send(
             RESPONSE(
                 {
-                    [Fields.accountList]: accountFromDb
+                    [Fields.accountList]: accountFromDb,
+                    [Fields.cussor]: accountFromDb[limit - 1]._id - 1
                 },
                 "Successful",
             )
@@ -163,17 +168,21 @@ export const update = async (req, res) => {
 
 export const getAllAccept = async (req, res) => {
     const { role } = req.users;
+    let cussor = req.query[Fields.cussor];
+    if (!Number(cussor)) cussor = -1;
+
     try {
         if (role !== 1) throw new Error('Nothing');
 
-        const RegisterFromDb = await registe_getAll();
+        const RegisterFromDb = await registe_getAll(cussor);
 
         if (!RegisterFromDb || role !== 1) throw new Error('Nothing');
 
         res.send(
             RESPONSE(
                 {
-                    [Fields.accountList]: RegisterFromDb
+                    [Fields.accountList]: RegisterFromDb,
+                    [Fields.cussor]: RegisterFromDb[limit - 1]._id - 1
                 },
                 "Successful",
             )
