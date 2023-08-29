@@ -20,45 +20,25 @@ export const image_create = async (data) => {
 
 export const image_updateById = async (data) => {
     const {
-        productId,
-        active,
-        name_product,
-        price,
-        image,
-        category,
-        code
+        imageId,
+        name_file,
+        active
     } = data;
 
-    const existingProduct = await image_getById(productId);
+    const existingImage = await image_getById(imageId);
 
-    if (!existingProduct) throw new Error("Customer not already exist");
-    if (name_product === existingProduct.name_product) throw new Error("Product has already exist");
+    if (!existingImage) throw new Error("Image not already exist");
+    if (name_file === existingImage.name_file) throw new Error("Image has already exist");
 
-    if (name_product) {
-        existingProduct.name_product = name_product;
+    if (name_file) {
+        existingImage.name_file = name_file;
     }
 
-    if (price) {
-        existingProduct.price = price;
+    if (active != existingImage.active) {
+        existingImage.active = active;
     }
 
-    if (image) {
-        existingProduct.image = image;
-    }
-
-    if (active != existingProduct.active) {
-        existingProduct.active = active;
-    }
-
-    if (category) {
-        existingProduct.category = category;
-    }
-
-    if (code) {
-        existingProduct.code = code;
-    }
-
-    return await existingProduct.save();
+    return await existingImage.save();
 };
 
 export const image_getAll = async (cussor = -1) => {

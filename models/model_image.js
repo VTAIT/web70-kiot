@@ -14,6 +14,11 @@ ImageSchema.add({
         cast: '{VALUE} is invalid',
         required: [true, 'Name is required'],
     },
+    src: {
+        type: String,
+        cast: '{VALUE} is invalid',
+        required: [true, 'Kiot is required'],
+    },
 });
 
 

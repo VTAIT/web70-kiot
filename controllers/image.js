@@ -1,6 +1,6 @@
 import { RESPONSE } from "../globals/api.js";
 import { Fields } from "../globals/fields.js";
-import { image_create, image_getAll, image_getAllByKiot } from "../services/mongo/image.js";
+import { image_create, image_getAll, image_getAllByKiot, image_getById, image_getByName, image_updateById } from "../services/mongo/image.js";
 import { uploadStream } from "../middlewares/multer.js";
 
 export const getAll = async (req, res) => {
@@ -47,12 +47,12 @@ export const getById = async (req, res) => {
     try {
         if (!id) throw new Error("Missing required fields");
 
-        const productFromDb = await product_getById(id);
+        const imageFromDb = await image_getById(id);
 
         res.send(
             RESPONSE(
                 {
-                    [Fields.productInfo]: productFromDb
+                    [Fields.imageInfo]: imageFromDb
                 },
                 "Successful",
             )
@@ -71,17 +71,19 @@ export const getById = async (req, res) => {
 
 export const create = async (req, res) => {
     try {
-        const { kiot_id } = req.body;
-        const name_file = await uploadStream(req.file.buffer);
+        const { kiot_id, name_file } = req.body;
+        const src = await uploadStream(req.file.buffer);
 
         if (
             !kiot_id
             || !name_file
+            || !src
         ) throw new Error("Missing required fields");
 
         const result = await image_create({
             kiot_id,
-            name_file: name_file.public_id
+            name_file,
+            src: src.public_id
         });
         res.send(
             RESPONSE(
@@ -96,6 +98,42 @@ export const create = async (req, res) => {
             RESPONSE(
                 [],
                 "Create unsuccessful",
+                e.errors,
+                e.message
+            )
+        );
+    }
+};
+
+export const update = async (req, res) => {
+    const {
+        imageId,
+        name_file,
+        active
+    } = req.body;
+
+    try {
+        if (!imageId) throw new Error("Missing required fields");
+
+        const result = await image_updateById({
+            imageId,
+            name_file,
+            active
+        });
+
+        res.send(
+            RESPONSE(
+                {
+                    [Fields.productInfo]: result
+                },
+                "Update successful",
+            )
+        );
+    } catch (e) {
+        res.status(400).send(
+            RESPONSE(
+                [],
+                "Update unsuccessful",
                 e.errors,
                 e.message
             )
