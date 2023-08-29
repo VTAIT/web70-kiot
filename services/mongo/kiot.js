@@ -4,6 +4,7 @@ export const kiot_create = async (username) => {
     if (!username) throw new Error("Missing required fields");
 
     const kiotDoc = new KiotModel({
+        _id: 0,
         username,
         email: "noemail@gmail.com",
         fullName: `${username}`,
@@ -17,9 +18,9 @@ export const kiot_create = async (username) => {
 };
 
 export const kiot_updateById = async (data) => {
-    const { active, fullName, phone, email, address, describe } = data;
+    const { kiot_id, active, fullName, phone, email, address, describe } = data;
 
-    const existingKiot = await customer_getById(customerId);
+    const existingKiot = await kiot_getById(kiot_id);
 
     if (!existingKiot) throw new Error("Kiot not already exist");
 
@@ -59,5 +60,5 @@ export const kiot_getById = async (id) => {
 };
 
 export const kiot_getByName = async (fullName) => {
-    return await KiotModel.findOne({ fullName: fullName });
+    return await KiotModel.find({ fullName: fullName });
 };

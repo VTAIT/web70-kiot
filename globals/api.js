@@ -1,3 +1,4 @@
+import { Fields } from "./fields.js";
 /**
  * Base: /api/v1
  * End Point
@@ -38,7 +39,7 @@
 const users = '/users';
 const kiots = '/kiots';
 const customers = '/customers';
-const transactions =  '/transactions';
+const transactions = '/transactions';
 const products = '/products';
 const reports = '/reports/:id-kiot';
 
@@ -132,7 +133,15 @@ const AUTH = {
     pa: 'pa'
 }
 
-// console.log('API',API);
-// console.log('METHOD',METHOD);
+const RESPONSE = (data, messege, ex, error) => {
 
-export { API, AUTH }
+    const result = {};
+    if (data) result[Fields.data] = data;
+    if (messege) result[Fields.messege] = messege;
+    if (ex) result[Fields.catch] = ex;
+    if (error) result[Fields.error] = error;
+
+    return result;
+};
+
+export { API, AUTH, RESPONSE }

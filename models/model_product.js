@@ -1,3 +1,4 @@
+import { SeqModel } from "../globals/mongodb.js";
 import BaseSchema from "./base_schema.js";
 
 const ProductSchema = BaseSchema.clone();
@@ -49,14 +50,12 @@ ProductSchema.add({
     },
 });
 
-// const ModelProduct = mongoose.model('products', ProductSchema);
+ProductSchema.pre('save', async function () {
+    // Don't increment if this is NOT a newly created document
+    if (!this.isNew) return;
 
-// const user = new ModelProduct({ fullName: 'abc', email: 'abc@gmail.com', username: 'abc', password: 'abc', role_id: 1 });
-// try {
-//     await user.validate();
-//     console.log(user);
-// } catch (err) {
-//     console.log(err.message);
-// }
+    const count = await SeqModel.increment('products');
+    this._id = count;
+});
 
 export { ProductSchema };

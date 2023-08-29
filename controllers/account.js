@@ -2,6 +2,8 @@ import { hashPassWord } from "../globals/config.js";
 import { user_create, user_getAll, user_getAllByKiot, user_getById, user_getByUserName, user_updateById } from "../services/mongo/user.js";
 import { kiot_create } from "../services/mongo/kiot.js";
 import { registe_getAll, registe_getById } from "../services/mongo/register.js";
+import { RESPONSE } from "../globals/api.js";
+import { Fields } from "../globals/fields.js";
 
 export const getAll = async (req, res) => {
     const { kiot_id, role } = req.users;
@@ -15,21 +17,23 @@ export const getAll = async (req, res) => {
             accountFromDb = await user_getAllByKiot({ kiot_id });
         }
 
-        res.send({
-            data: accountFromDb,
-            message: "Successful"
-        });
+        res.send(
+            RESPONSE(
+                {
+                    [Fields.accountList]: accountFromDb
+                },
+                "Successful",
+            )
+        );
     } catch (e) {
-        let messages = [];
-        for (const key in e.errors) {
-            const element = e.errors[key];
-            messages.push(element.message);
-        }
-        res.status(400).send({
-            error: messages,
-            message: "Unsuccessful",
-            catch: e.message
-        });
+        res.status(400).send(
+            RESPONSE(
+                [],
+                "Unsuccessful",
+                e.errors,
+                e.message
+            )
+        );
     }
 };
 
@@ -41,37 +45,40 @@ export const getById = async (req, res) => {
 
         const accountFromDb = await user_getById(id);
 
-        res.send({
-            data: accountFromDb,
-            message: "Thành công"
-        });
+        res.send(
+            RESPONSE(
+                {
+                    [Fields.userInfo]: accountFromDb
+                },
+                "Successful",
+            )
+        );
     } catch (e) {
-        let messages = [];
-        for (const key in e.errors) {
-            const element = e.errors[key];
-            messages.push(element.message);
-        }
-        res.status(400).send({
-            error: messages,
-            message: "Unsuccessful",
-            catch: e.message
-        });
+        res.status(400).send(
+            RESPONSE(
+                [],
+                "Unsuccessful",
+                e.errors,
+                e.message
+            )
+        );
     }
 };
 
 export const create = async (req, res) => {
-    const {
-        username,
-        password,
-        email,
-        fullName,
-        phone,
-        address,
-        role_id
-    } = req.body;
-
-    const { kiot_id } = req.users;
     try {
+        const {
+            username,
+            password,
+            email,
+            fullName,
+            phone,
+            address,
+            role_id
+        } = req.body;
+
+        const { kiot_id } = req.users;
+
         if (!username
             || !password
             || !fullName
@@ -96,21 +103,23 @@ export const create = async (req, res) => {
             kiot_id
         });
 
-        res.send({
-            data: userDoc,
-            message: "Create successfully",
-        });
+        res.send(
+            RESPONSE(
+                {
+                    [Fields.userInfo]: userDoc
+                },
+                "Create successful",
+            )
+        );
     } catch (e) {
-        let messages = [];
-        for (const key in e.errors) {
-            const element = e.errors[key];
-            messages.push(element.message);
-        }
-        res.status(400).send({
-            error: messages,
-            message: "Create unsuccessful",
-            catch: e.message
-        });
+        res.status(400).send(
+            RESPONSE(
+                [],
+                "Create unsuccessful",
+                e.errors,
+                e.message
+            )
+        );
     }
 };
 
@@ -132,21 +141,23 @@ export const update = async (req, res) => {
             status
         });
 
-        res.send({
-            data: result,
-            message: "Update successfully",
-        });
+        res.send(
+            RESPONSE(
+                {
+                    [Fields.userInfo]: result
+                },
+                "Update successful",
+            )
+        );
     } catch (e) {
-        let messages = [];
-        for (const key in e.errors) {
-            const element = e.errors[key];
-            messages.push(element.message);
-        }
-        res.status(400).send({
-            error: messages,
-            message: "Update unsuccessful",
-            catch: e.message
-        });
+        res.status(400).send(
+            RESPONSE(
+                [],
+                "Update unsuccessful",
+                e.errors,
+                e.message
+            )
+        );
     }
 };
 
@@ -159,21 +170,23 @@ export const getAllAccept = async (req, res) => {
 
         if (!RegisterFromDb || role !== 1) throw new Error('Nothing');
 
-        res.send({
-            data: RegisterFromDb,
-            message: "Successful"
-        });
+        res.send(
+            RESPONSE(
+                {
+                    [Fields.accountList]: RegisterFromDb
+                },
+                "Successful",
+            )
+        );
     } catch (e) {
-        let messages = [];
-        for (const key in e.errors) {
-            const element = e.errors[key];
-            messages.push(element.message);
-        }
-        res.send({
-            error: messages,
-            message: "Unsuccessful",
-            catch: e.message
-        });
+        res.status(400).send(
+            RESPONSE(
+                [],
+                "Unsuccessful",
+                e.errors,
+                e.message
+            )
+        );
     }
 };
 
@@ -214,23 +227,24 @@ export const acceptById = async (req, res) => {
 
         AccountFromDb.status = 1;
         await AccountFromDb.save();
-
-        res.send({
-            data: result,
-            message: "Active successfully",
-        });
+        res.send(
+            RESPONSE(
+                {
+                    [Fields.userInfo]: result
+                },
+                "Active successfully",
+            )
+        );
 
     } catch (e) {
-        let messages = [];
-        for (const key in e.errors) {
-            const element = e.errors[key];
-            messages.push(element.message);
-        }
-        res.send({
-            error: messages,
-            message: "Active unsuccessful",
-            catch: e.message
-        });
+        res.status(400).send(
+            RESPONSE(
+                [],
+                "Active unsuccessful",
+                e.errors,
+                e.message
+            )
+        );
     }
 
 };

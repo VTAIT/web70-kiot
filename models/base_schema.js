@@ -1,6 +1,11 @@
 import mongoose from "mongoose";
 
 const BaseSchema = new mongoose.Schema({
+    _id: {
+        type: Number,
+        alias: 'id',
+        required: true,
+    },
     active: {
         type: Boolean,
     },
@@ -8,9 +13,5 @@ const BaseSchema = new mongoose.Schema({
     timestamps: true,
     versionKey: false
 });
-
-// const BaseModel = mongoose.model('users', BaseSchema);
-// const user = new BaseModel();
-// console.log(user);
 
 export default BaseSchema;

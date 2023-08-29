@@ -12,6 +12,7 @@ export const customer_create = async (data) => {
     } = data;
 
     const customerDoc = new CustomerModel({
+        _id: 0,
         username,
         email,
         fullName,
@@ -74,7 +75,7 @@ export const customer_updateById = async (data) => {
 };
 
 export const customer_getAll = async () => {
-    return await CustomerModel.findOne({});
+    return await CustomerModel.find({});
 };
 
 export const customer_getById = async (id) => {

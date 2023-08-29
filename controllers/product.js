@@ -1,3 +1,5 @@
+import { RESPONSE } from "../globals/api.js";
+import { Fields } from "../globals/fields.js";
 import { ProductModel } from "../globals/mongodb.js";
 
 import {
@@ -8,50 +10,58 @@ import {
     product_getByName,
     product_updateById,
 } from "../services/mongo/product.js";
+import { saleoff_getAll } from "../services/mongo/saleoff.js";
 
 export const getAll = async (req, res) => {
     const { kiot_id, role } = req.users;
     console.log(req.users);
     let productFromDb = [];
+    let saleOffProductList = [];
+    let saleOffTransactionList = [];
 
     try {
         // supper admin
         if (role === 1) {
             productFromDb = await product_getAll();
+            const saleOffFromDb = await saleoff_getAll();
+            saleOffFromDb.forEach((e) => {
+                const type = e.type;
+                if (type === 1) {
+                    saleOffProductList.push(e);
+                } else if (type === 2) {
+                    saleOffTransactionList.push(e);
+                }
+            });
         } else {
             productFromDb = await product_getAllByKiot(kiot_id);
+            const saleOffFromDb = await saleoff_getAll();
+            saleOffFromDb.forEach((e) => {
+                const type = e.type;
+                if (type === 1) {
+                    saleOffProductList.push(e);
+                } else if (type === 2) {
+                    saleOffTransactionList.push(e);
+                }
+            });
         }
+        res.send(
+            RESPONSE(
+                {
+                    [Fields.productList]: productFromDb,
+                    [Fields.saleOffProductList]: saleOffProductList,
+                    [Fields.saleOffTransactionList]: saleOffTransactionList,
+                },
+                "Successful"
+            )
+        );
 
         res.json({
             data: { productList: productFromDb },
             message: "Successful",
         });
     } catch (e) {
-        let messages = [];
-        for (const key in e.errors) {
-            const element = e.errors[key];
-            messages.push(element.message);
-        }
-        res.status(400).json({
-            error: messages,
-            message: "Unsuccessful",
-            catch: e.message,
-        });
+        res.status(400).send(RESPONSE([], "Unsuccessful", e.errors, e.message));
     }
-
-    // supper admin
-    // if (role === 1) {
-    //     productFromDb = await ProductModel.find({});
-    // } else {
-    //     if (kiot_id) {
-    //         productFromDb = await ProductModel.find({ kiot_id });
-    //     }
-    // }
-
-    // res.json({
-    //     data: productFromDb,
-    //     message: "Thành công",
-    // });
 };
 
 export const getById = async (req, res) => {
@@ -62,21 +72,16 @@ export const getById = async (req, res) => {
 
         const productFromDb = await product_getById(id);
 
-        res.send({
-            data: productFromDb,
-            message: "Successful",
-        });
+        res.send(
+            RESPONSE(
+                {
+                    [Fields.productInfo]: productFromDb,
+                },
+                "Successful"
+            )
+        );
     } catch (e) {
-        let messages = [];
-        for (const key in e.errors) {
-            const element = e.errors[key];
-            messages.push(element.message);
-        }
-        res.status(400).send({
-            error: messages,
-            message: "Unsuccessful",
-            catch: e.message,
-        });
+        res.status(400).send(RESPONSE([], "Unsuccessful", e.errors, e.message));
     }
 };
 
@@ -116,22 +121,18 @@ export const create = async (req, res) => {
             category,
             description,
         });
-
-        res.send({
-            data: result,
-            message: "Create successfully",
-        });
+        res.send(
+            RESPONSE(
+                {
+                    [Fields.productInfo]: result,
+                },
+                "Create successful"
+            )
+        );
     } catch (e) {
-        let messages = [];
-        for (const key in e.errors) {
-            const element = e.errors[key];
-            messages.push(element.message);
-        }
-        res.status(400).send({
-            error: messages,
-            message: "Create unsuccessful",
-            catch: e.message,
-        });
+        res.status(400).send(
+            RESPONSE([], "Create unsuccessful", e.errors, e.message)
+        );
     }
 };
 
@@ -150,11 +151,14 @@ export const update = async (req, res) => {
             category,
             code,
         });
-
-        res.send({
-            data: result,
-            message: "Update successfully",
-        });
+        res.send(
+            RESPONSE(
+                {
+                    [Fields.productInfo]: result,
+                },
+                "Update successful"
+            )
+        );
     } catch (e) {
         let messages = [];
         for (const key in e.errors) {

@@ -12,6 +12,7 @@ export const product_create = async (data) => {
     } = data;
 
     const productDoc = new ProductModel({
+        _id: 0,
         kiot_id,
         product_name,
         price,

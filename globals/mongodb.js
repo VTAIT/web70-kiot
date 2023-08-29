@@ -5,6 +5,9 @@ import { ProductSchema } from '../models/model_product.js';
 import { KiotSchema } from '../models/model_kiot.js';
 import { CustomerSchema } from "../models/model_customer.js";
 import { TransactionSchema } from "../models/model_transaction.js";
+import { SaleOffSchema } from "../models/model_saleoff.js";
+import { SeqSchema } from "../models/model_seq.js";
+import { RegisterSchema } from "../models/model_register.js";
 
 const connectDB = async () => {
   try {
@@ -19,9 +22,11 @@ const connectDB = async () => {
 
 const UserModel = mongoose.model("users", AccountSchema);
 const ProductModel = mongoose.model('products', ProductSchema);
-const RegisterModel = mongoose.model('registers', AccountSchema);
+const RegisterModel = mongoose.model('registers', RegisterSchema);
 const KiotModel = mongoose.model('kiots', KiotSchema);
 const CustomerModel = mongoose.model('customers', CustomerSchema);
 const TransactionModel = mongoose.model('transactions', TransactionSchema);
+const SaleOffModel = mongoose.model('saleoffs', SaleOffSchema);
+const SeqModel = mongoose.model('seqs', SeqSchema);
 
-export { connectDB, UserModel, ProductModel, RegisterModel, KiotModel, CustomerModel, TransactionModel };
+export { connectDB, UserModel, ProductModel, RegisterModel, KiotModel, CustomerModel, TransactionModel, SaleOffModel, SeqModel };

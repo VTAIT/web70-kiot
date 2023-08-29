@@ -1,4 +1,5 @@
-import { KiotModel } from "../globals/mongodb.js";
+import { RESPONSE } from "../globals/api.js";
+import { Fields } from "../globals/fields.js";
 import {
     kiot_getAll,
     kiot_getById,
@@ -13,22 +14,18 @@ export const getAll = async (req, res) => {
         if (role === 1) {
             kiotFromDb = await kiot_getAll();
 
-            res.json({
-                data: kiotFromDb,
-                message: "Successful",
-            });
+            return res.send(
+                RESPONSE(
+                    {
+                        [Fields.kiotList]: kiotFromDb,
+                    },
+                    "Successful"
+                )
+            );
         }
+        res.send(RESPONSE([], "Successful"));
     } catch (e) {
-        let messages = [];
-        for (const key in e.errors) {
-            const element = e.errors[key];
-            messages.push(element.message);
-        }
-        res.status(400).send({
-            error: messages,
-            message: "Unsuccessful",
-            catch: e.message,
-        });
+        res.status(400).send(RESPONSE([], "Unsuccessful", e.errors, e.message));
     }
 };
 
@@ -45,33 +42,28 @@ export const getById = async (req, res) => {
         } else {
             kiotFromDb = await kiot_getById(kiot_id);
         }
-
-        res.send({
-            data: kiotFromDb,
-            message: "Successful",
-        });
+        res.send(
+            RESPONSE(
+                {
+                    [Fields.kiotInfo]: kiotFromDb,
+                },
+                "Successful"
+            )
+        );
     } catch (e) {
-        let messages = [];
-        for (const key in e.errors) {
-            const element = e.errors[key];
-            messages.push(element.message);
-        }
-        res.status(400).send({
-            error: messages,
-            message: "Unsuccessful",
-            catch: e.message,
-        });
+        res.status(400).send(RESPONSE([], "Unsuccessful", e.errors, e.message));
     }
 };
 
 export const update = async (req, res) => {
-    const { active, fullName, phone, email, address, describe } = req.body;
+    const { kiot_id, active, fullName, phone, email, address, describe } =
+        req.body;
 
-    const { kiot_id } = req.users;
     try {
         if (!kiot_id) throw new Error("Missing required fields");
 
         const result = await kiot_updateById({
+            kiot_id,
             active,
             fullName,
             phone,
@@ -79,21 +71,17 @@ export const update = async (req, res) => {
             address,
             describe,
         });
-
-        res.send({
-            data: result,
-            message: "Update successfully",
-        });
+        res.send(
+            RESPONSE(
+                {
+                    [Fields.kiotInfo]: result,
+                },
+                "Update successful"
+            )
+        );
     } catch (e) {
-        let messages = [];
-        for (const key in e.errors) {
-            const element = e.errors[key];
-            messages.push(element.message);
-        }
-        res.status(400).send({
-            error: messages,
-            message: "Update unsuccessful",
-            catch: e.message,
-        });
+        res.status(400).send(
+            RESPONSE([], "Update unsuccessful", e.errors, e.message)
+        );
     }
 };

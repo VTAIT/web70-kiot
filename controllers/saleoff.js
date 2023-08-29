@@ -1,26 +1,46 @@
 import { RESPONSE } from "../globals/api.js";
 import { Fields } from "../globals/fields.js";
-import { customer_create, customer_getAll, customer_getAllByKiot, customer_getById, customer_getByUserName, customer_updateById } from "../services/mongo/customer.js";
+import { saleoff_create, saleoff_getAll, saleoff_getAllByKiot, saleoff_getById, saleoff_getByName, saleoff_updateById } from "../services/mongo/saleoff.js";
 
 export const getAll = async (req, res) => {
     const { kiot_id, role } = req.users;
 
-    let customerFromDb = [];
+    let saleOffProductList = [];
+    let saleOffTransactionList = [];
+
     try {
         // supper admin
         if (role === 1) {
-            customerFromDb = await customer_getAll();
+            const saleOffFromDb = await saleoff_getAll();
+            saleOffFromDb.forEach(e => {
+                const type = e.type;
+                if (type === 1) {
+                    saleOffProductList.push(e);
+                } else if (type === 2) {
+                    saleOffTransactionList.push(e)
+                }
+            })
         } else {
-            customerFromDb = await customer_getAllByKiot(kiot_id);
+            const saleOffFromDb = await saleoff_getAllByKiot(kiot_id);
+            saleOffFromDb.forEach(e => {
+                const type = e.type;
+                if (type === 1) {
+                    saleOffProductList.push(e);
+                } else if (type === 2) {
+                    saleOffTransactionList.push(e)
+                }
+            })
         }
         res.send(
             RESPONSE(
                 {
-                    [Fields.customerList]: customerFromDb
+                    [Fields.saleOffProductList]: saleOffProductList,
+                    [Fields.saleOffTransactionList]: saleOffTransactionList
                 },
                 "Successful",
             )
         );
+
     } catch (e) {
         res.status(400).send(
             RESPONSE(
@@ -39,12 +59,12 @@ export const getById = async (req, res) => {
     try {
         if (!id) throw new Error("Missing required fields");
 
-        const customerFromDb = await customer_getById(id);
+        const saleOffFromDb = await saleoff_getById(id);
 
         res.send(
             RESPONSE(
                 {
-                    [Fields.customerInfo]: customerFromDb
+                    [Fields.saleOffInfo]: saleOffFromDb
                 },
                 "Successful",
             )
@@ -62,41 +82,36 @@ export const getById = async (req, res) => {
 };
 
 export const create = async (req, res) => {
+    const { id } = req.users;
     const {
-        email,
-        fullName,
-        phone,
-        address,
-        gender,
-        kiot_id
+        kiot_id,
+        name_product,
+        price,
+        image,
+        type
     } = req.body;
-
-    const { username } = req.users;
     try {
-        if (!username
-            || !fullName
-            || !phone
-            || !address
-            || !gender
+        if (
+            !id
             || !kiot_id
+            || !name_product
+            || !price
         ) throw new Error("Missing required fields");
 
-        if (await customer_getByUserName(fullName, kiot_id)) throw new Error("Customer has already exist");
+        if (await saleoff_getByName(name_product, kiot_id)) throw new Error("Sale off has already exist");
 
-        const customerDoc = await customer_create({
-            email,
-            fullName,
-            phone,
-            address,
-            gender,
-            username,
+        const result = await saleoff_create({
             kiot_id,
+            name_product,
+            price,
+            image,
+            type,
+            id
         });
-
         res.send(
             RESPONSE(
                 {
-                    [Fields.customerInfo]: customerDoc
+                    [Fields.saleOffInfo]: result
                 },
                 "Create successful",
             )
@@ -115,33 +130,28 @@ export const create = async (req, res) => {
 
 export const update = async (req, res) => {
     const {
-        customerId,
-        email,
-        fullName,
-        phone,
-        address,
-        gender,
-        transaction,
-        rank
+        saleOffId,
+        name_product,
+        price,
+        image,
+        type,
+        active
     } = req.body;
-
     try {
-        if (!customerId) throw new Error("Missing required fields");
+        if (!saleOffId) throw new Error("Missing required fields");
 
-        const result = await customer_updateById({
-            customerId,
-            email,
-            fullName,
-            phone,
-            address,
-            gender,
-            transaction,
-            rank
+        const result = await saleoff_updateById({
+            saleOffId,
+            name_product,
+            price,
+            image,
+            type,
+            active
         });
         res.send(
             RESPONSE(
                 {
-                    [Fields.customerInfo]: result
+                    [Fields.saleOffInfo]: result
                 },
                 "Update successful",
             )
