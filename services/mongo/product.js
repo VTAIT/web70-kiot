@@ -11,6 +11,7 @@ export const product_create = async (data) => {
         user_id,
         category,
         description,
+        active,
     } = data;
 
     const productDoc = new ProductModel({
@@ -26,23 +27,32 @@ export const product_create = async (data) => {
         code: "",
         active: true,
         description,
+        active,
     });
 
     return await productDoc.save();
 };
 
 export const product_updateById = async (data) => {
-    const { productId, active, name_product, price, image, category, code } =
-        data;
+    const {
+        productId,
+        active,
+        product_name,
+        price,
+        image,
+        category,
+        description,
+    } = data;
 
     const existingProduct = await product_getById(productId);
 
-    if (!existingProduct) throw new Error("Customer not already exist");
-    if (name_product === existingProduct.name_product)
-        throw new Error("Product has already exist");
+    if (!existingProduct) throw new Error("Product not already exist");
 
-    if (name_product) {
-        existingProduct.name_product = name_product;
+    // if (name_product === existingProduct.name_product)
+    //     throw new Error("Product has already exist");
+
+    if (product_name) {
+        existingProduct.product_name = product_name;
     }
 
     if (price) {
@@ -61,8 +71,8 @@ export const product_updateById = async (data) => {
         existingProduct.category = category;
     }
 
-    if (code) {
-        existingProduct.code = code;
+    if (description) {
+        existingProduct.description = description;
     }
 
     return await existingProduct.save();

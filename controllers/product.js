@@ -94,10 +94,10 @@ export const create = async (req, res) => {
 
     const body = JSON.parse(JSON.stringify(req.body)); // req.body = [Object: null prototype] { title: 'product' }
 
-    const { product_name, price, category, description } = body;
+    const { product_name, price, category, description, active } = body;
 
     try {
-        if (!product_name || !price || !category || !description || !image)
+        if (!product_name || !price || !category || !description || !active)
             throw new Error("Missing required fields");
 
         const exist = await product_getByName(
@@ -105,18 +105,18 @@ export const create = async (req, res) => {
             kiot_id ? liot_id : body.kiot_id,
             category
         );
-        console.log(exist);
 
         if (exist) throw new Error("Product has already exist");
 
         const result = await product_create({
-            kiot_id: kiot_id ? liot_id : body.kiot_id,
+            kiot_id: kiot_id ? kiot_id : body.kiot_id,
             product_name,
             price,
             image,
             user_id: id,
             category,
             description,
+            active,
         });
         res.json(
             RESPONSE(
@@ -134,8 +134,13 @@ export const create = async (req, res) => {
 };
 
 export const update = async (req, res) => {
-    const { productId, active, product_name, price, image, category, code } =
-        req.body;
+    const image = req.imageUrl;
+
+    const body = JSON.parse(JSON.stringify(req.body)); // req.body = [Object: null prototype] { title: 'product' }
+
+    const { productId, active, product_name, price, category, description } =
+        body;
+
     try {
         if (!productId) throw new Error("Missing required fields");
 
@@ -146,7 +151,7 @@ export const update = async (req, res) => {
             price,
             image,
             category,
-            code,
+            description,
         });
         res.json(
             RESPONSE(
@@ -164,7 +169,7 @@ export const update = async (req, res) => {
         }
         res.status(400).json({
             error: messages,
-            message: "Update unsuccessful",
+            message: "Update unsuccessful 1",
             catch: e.message,
         });
     }

@@ -3,9 +3,9 @@ import fs from "fs";
 import { RESPONSE } from "../globals/api.js";
 
 cloudinary.config({
-    cloud_name: process.env.CLOUD_NAME_CLOUDINARY,
+    cloud_name: process.env.CLOUDNAME,
     api_key: process.env.API_KEY_CLOUDINARY,
-    api_secret: process.env.API_SECRECT_CLOUDINARY,
+    api_secret: process.env.API_SECRET_CLOUDINARY,
 });
 
 const getUrlImage = async (req, res, next) => {
@@ -14,6 +14,10 @@ const getUrlImage = async (req, res, next) => {
     const { product_name, price, category, description } = JSON.parse(
         JSON.stringify(req.body)
     ); // req.body = [Object: null prototype] { title: 'product' }
+
+    if (!file) {
+        return next();
+    }
 
     try {
         if (!product_name || !price || !category || !description)
@@ -32,7 +36,14 @@ const getUrlImage = async (req, res, next) => {
     } catch (e) {
         return res
             .status(400)
-            .json(RESPONSE([], "Unsuccessful", e.errors, e.message));
+            .json(
+                RESPONSE(
+                    [],
+                    "Unsuccessful upload cloudinary",
+                    e.errors,
+                    e.message
+                )
+            );
     }
 };
 
