@@ -44,7 +44,7 @@ export const getAll = async (req, res) => {
                 }
             });
         }
-        res.send(
+        res.json(
             RESPONSE(
                 {
                     [Fields.productList]: productFromDb,
@@ -54,13 +54,8 @@ export const getAll = async (req, res) => {
                 "Successful"
             )
         );
-
-        res.json({
-            data: { productList: productFromDb },
-            message: "Successful",
-        });
     } catch (e) {
-        res.status(400).send(RESPONSE([], "Unsuccessful", e.errors, e.message));
+        res.status(400).json(RESPONSE([], "Unsuccessful", e.errors, e.message));
     }
 };
 
@@ -72,7 +67,7 @@ export const getById = async (req, res) => {
 
         const productFromDb = await product_getById(id);
 
-        res.send(
+        res.json(
             RESPONSE(
                 {
                     [Fields.productInfo]: productFromDb,
@@ -81,7 +76,7 @@ export const getById = async (req, res) => {
             )
         );
     } catch (e) {
-        res.status(400).send(RESPONSE([], "Unsuccessful", e.errors, e.message));
+        res.status(400).json(RESPONSE([], "Unsuccessful", e.errors, e.message));
     }
 };
 
@@ -93,9 +88,8 @@ export const create = async (req, res) => {
         JSON.stringify(req.body)
     ); // req.body = [Object: null prototype] { title: 'product' }
 
-    console.log({ product_name, price, category, description }); // { title: 'product' }
-    console.log(req.imageUrl);
-
+    console.log(image);
+    console.log({ product_name, price, category, description });
     try {
         if (
             !kiot_id ||
@@ -112,7 +106,7 @@ export const create = async (req, res) => {
         if (await product_getByName(product_name, kiot_id, category))
             throw new Error("Product has already exist");
 
-        const result = product_create({
+        const result = await product_create({
             kiot_id,
             product_name,
             price,
@@ -121,7 +115,7 @@ export const create = async (req, res) => {
             category,
             description,
         });
-        res.send(
+        res.json(
             RESPONSE(
                 {
                     [Fields.productInfo]: result,
@@ -130,7 +124,7 @@ export const create = async (req, res) => {
             )
         );
     } catch (e) {
-        res.status(400).send(
+        res.status(400).json(
             RESPONSE([], "Create unsuccessful", e.errors, e.message)
         );
     }
@@ -151,7 +145,7 @@ export const update = async (req, res) => {
             category,
             code,
         });
-        res.send(
+        res.json(
             RESPONSE(
                 {
                     [Fields.productInfo]: result,
@@ -165,7 +159,7 @@ export const update = async (req, res) => {
             const element = e.errors[key];
             messages.push(element.message);
         }
-        res.status(400).send({
+        res.status(400).json({
             error: messages,
             message: "Update unsuccessful",
             catch: e.message,

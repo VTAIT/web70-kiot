@@ -1,5 +1,6 @@
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
+import { RESPONSE } from "../globals/api.js";
 
 cloudinary.config({
     cloud_name: process.env.CLOUD_NAME_CLOUDINARY,
@@ -8,9 +9,16 @@ cloudinary.config({
 });
 
 const getUrlImage = async (req, res, next) => {
+    const { id, kiot_id } = req.users;
     const file = req.file;
+    const { product_name, price, category, description } = JSON.parse(
+        JSON.stringify(req.body)
+    ); // req.body = [Object: null prototype] { title: 'product' }
 
     try {
+        if (!kiot_id || !product_name || !price || !category || !description)
+            throw new Error("Missing required fields");
+
         const result = await cloudinary.uploader.upload(file.path, {
             resource_type: "auto",
             folder: "final_project_kiot",
@@ -21,10 +29,10 @@ const getUrlImage = async (req, res, next) => {
         fs.unlinkSync(file.path);
 
         next();
-    } catch (error) {
+    } catch (e) {
         return res
-            .status(500)
-            .json({ message: "Error uploading image to Cloudinary" });
+            .status(400)
+            .json(RESPONSE([], "Unsuccessful", e.errors, e.message));
     }
 };
 
