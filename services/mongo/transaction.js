@@ -1,3 +1,5 @@
+import { limit } from "../../globals/config.js";
+import { MongoFields } from "../../globals/fields/mongo.js";
 import { TransactionModel } from "../../globals/mongodb.js";
 
 export const transaction_create = async (data) => {
@@ -72,25 +74,25 @@ export const transaction_getAll = async (cussor = -1) => {
     let query = {};
 
     if (cussor > 0) {
-        query[Fields.id] = { $lte: cussor };
+        query[MongoFields.id] = { $lte: cussor };
     }
 
-    return await TransactionModel.find(query).sort({ [Fields.id]: -1 }).limit(limit);;
+    return await TransactionModel.find(query).sort({ [MongoFields.id]: -1 }).limit(limit);;
 };
 
 export const transaction_getById = async (id) => {
-    return await TransactionModel.findOne({ _id: id });
+    return await TransactionModel.findOne({ [MongoFields.id]: id });
 };
 
 export const transaction_getByName = async (name_product, kiot_id) => {
-    return await TransactionModel.findOne({ name_product: name_product, kiot_id: kiot_id });
+    return await TransactionModel.findOne({ [MongoFields.name_product]: name_product, [MongoFields.kiot_id]: kiot_id });
 };
 
 export const transaction_getAllByKiot = async (kiot_id, cussor = -1) => {
-    let query = { kiot_id: kiot_id };
+    let query = { [MongoFields.kiot_id]: kiot_id };
 
     if (cussor > 0) {
-        query[Fields.id] = { $lte: cussor };
+        query[MongoFields.id] = { $lte: cussor };
     }
-    return await TransactionModel.find(query).sort({ [Fields.id]: -1 }).limit(limit);
+    return await TransactionModel.find(query).sort({ [MongoFields.id]: -1 }).limit(limit);
 };

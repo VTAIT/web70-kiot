@@ -46,16 +46,4 @@ BaseSchemaInfo.add({
     },
 });
 
-
-// const BaseSchemaInfoModel = mongoose.model('users', BaseSchemaInfo);
-
-// const user = new BaseSchemaInfoModel({ fullName: 'abc', email: 'abcmail.com' });
-// try {
-//     await user.validate();
-//     console.log(user);
-// } catch (err) {
-//     console.log(err.message);
-// }
-
-
 export default BaseSchemaInfo;

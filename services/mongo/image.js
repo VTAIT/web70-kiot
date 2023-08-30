@@ -1,5 +1,5 @@
 import { limit } from "../../globals/config.js";
-import { Fields } from "../../globals/fields.js";
+import { MongoFields } from "../../globals/fields/mongo.js";
 import { ImageModel } from "../../globals/mongodb.js";
 
 export const image_create = async (data) => {
@@ -45,25 +45,25 @@ export const image_getAll = async (cussor = -1) => {
     let query = {};
 
     if (cussor > 0) {
-        query[Fields.id] = { $lte: cussor };
+        query[MongoFields.id] = { $lte: cussor };
     }
 
-    return await ImageModel.find(query).sort({ [Fields.id]: -1 }).limit(limit);
+    return await ImageModel.find(query).sort({ [MongoFields.id]: -1 }).limit(limit);
 };
 
 export const image_getById = async (id) => {
-    return await ImageModel.findOne({ _id: id });
+    return await ImageModel.findOne({ [MongoFields.id]: id });
 };
 
 export const image_getByName = async (name_product, kiot_id) => {
-    return await ImageModel.findOne({ name_product: name_product, kiot_id: kiot_id });
+    return await ImageModel.findOne({ [MongoFields.name_product]: name_product, [MongoFields.kiot_id]: kiot_id });
 };
 
 export const image_getAllByKiot = async (kiot_id, cussor = -1) => { 
-    let query = { kiot_id: kiot_id };
+    let query = { [MongoFields.kiot_id]: kiot_id };
 
     if (cussor > 0) {
-        query[Fields.id] = { $lte: cussor };
+        query[MongoFields.id] = { $lte: cussor };
     }
 
     return await ImageModel.find(query).sort({ [Fields.id]: -1 }).limit(limit);

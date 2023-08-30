@@ -1,4 +1,4 @@
-const Fields = {
+const ResponseFields = {
     data: "data",
     messege: "messege",
     catch: "catch",
@@ -22,10 +22,6 @@ const Fields = {
     kiotList: "kiotList",
     imageList:"imageList",
     CodeMessage: "CodeMessage",
-
-    id: "_id",
-    name_product: "name_product",
-    type: "type"
 }
 
-export { Fields };
+export { ResponseFields };

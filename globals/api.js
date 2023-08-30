@@ -1,4 +1,4 @@
-import { Fields } from "./fields.js";
+import { ResponseFields } from "./fields/response.js";
 /**
  * Base: /api/v1
  * End Point
@@ -136,10 +136,10 @@ const AUTH = {
 const RESPONSE = (data, messege, ex, error) => {
 
     const result = {};
-    if (data) result[Fields.data] = data;
-    if (messege) result[Fields.messege] = messege;
-    if (ex) result[Fields.catch] = ex;
-    if (error) result[Fields.error] = error;
+    if (data) result[ResponseFields.data] = data;
+    if (messege) result[ResponseFields.messege] = messege;
+    if (ex) result[ResponseFields.catch] = ex;
+    if (error) result[ResponseFields.error] = error;
 
     return result;
 };

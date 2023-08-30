@@ -1,13 +1,13 @@
 import { RESPONSE } from "../globals/api.js";
-import { Fields } from "../globals/fields.js";
 import { image_create, image_getAll, image_getAllByKiot, image_getById, image_getByName, image_updateById } from "../services/mongo/image.js";
 import { uploadStream } from "../middlewares/multer.js";
+import { ResponseFields } from "../globals/fields/response.js";
 
 export const getAll = async (req, res) => {
     try {
         const { kiot_id, role } = req.users;
 
-        let cussor = req.query[Fields.cussor];
+        let cussor = req.query[ResponseFields.cussor];
         if (!Number(cussor)) cussor = -1;
 
         let imageFromDb = [];
@@ -21,15 +21,14 @@ export const getAll = async (req, res) => {
         res.send(
             RESPONSE(
                 {
-                    [Fields.imageList]: imageFromDb,
-                    [Fields.cussor]: imageFromDb.slice(-1)[0]._id - 1
+                    [ResponseFields.imageList]: imageFromDb,
+                    [ResponseFields.cussor]: imageFromDb.slice(-1)[0]._id - 1
                 },
                 "Successful",
             )
         );
 
     } catch (e) {
-        console.log(e)
         res.status(400).send(
             RESPONSE(
                 [],
@@ -42,7 +41,7 @@ export const getAll = async (req, res) => {
 };
 
 export const getById = async (req, res) => {
-    const id = req.query[Fields.did];
+    const id = req.query[ResponseFields.did];
 
     try {
         if (!id) throw new Error("Missing required fields");
@@ -52,7 +51,7 @@ export const getById = async (req, res) => {
         res.send(
             RESPONSE(
                 {
-                    [Fields.imageInfo]: imageFromDb
+                    [ResponseFields.imageInfo]: imageFromDb
                 },
                 "Successful",
             )
@@ -88,7 +87,7 @@ export const create = async (req, res) => {
         res.send(
             RESPONSE(
                 {
-                    [Fields.imageInfo]: result
+                    [ResponseFields.imageInfo]: result
                 },
                 "Create successful",
             )
@@ -118,13 +117,13 @@ export const update = async (req, res) => {
         const result = await image_updateById({
             imageId,
             name_file,
-            active
+            active: Boolean(active)
         });
 
         res.send(
             RESPONSE(
                 {
-                    [Fields.productInfo]: result
+                    [ResponseFields.productInfo]: result
                 },
                 "Update successful",
             )
