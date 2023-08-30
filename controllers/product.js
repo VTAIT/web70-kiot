@@ -51,7 +51,7 @@ export const getAll = async (req, res) => {
             saleOffProductList = await saleoff_getByArray(array);
             saleOffTransactionList = await saleoff_getByTracsaction(kiot_id);
         }
-        res.json(
+        res.send(
             RESPONSE(
                 {
                     [Fields.productList]: productFromDb,
@@ -63,7 +63,7 @@ export const getAll = async (req, res) => {
             )
         );
     } catch (e) {
-        res.status(400).json(RESPONSE([], "Unsuccessful", e.errors, e.message));
+        res.status(400).send(RESPONSE([], "Unsuccessful", e.errors, e.message));
     }
 };
 
@@ -75,7 +75,7 @@ export const getById = async (req, res) => {
 
         const productFromDb = await product_getById(id);
 
-        res.json(
+        res.send(
             RESPONSE(
                 {
                     [Fields.productInfo]: productFromDb,
@@ -84,32 +84,33 @@ export const getById = async (req, res) => {
             )
         );
     } catch (e) {
-        res.status(400).json(RESPONSE([], "Unsuccessful", e.errors, e.message));
+        res.status(400).send(RESPONSE([], "Unsuccessful", e.errors, e.message));
     }
 };
 
 export const create = async (req, res) => {
     const { id, kiot_id } = req.users;
-    const image = req.imageUrl;
 
-    const body = JSON.parse(JSON.stringify(req.body)); // req.body = [Object: null prototype] { title: 'product' }
-
-    const { product_name, price, category, description, active } = body;
+    const data = req.body;
+    const { product_name, price, category, description, active, image } = data;
 
     try {
-        if (!product_name || !price || !category || !description || !active)
+        if (
+            (!product_name || !price || !category || !description || !active,
+            !image)
+        )
             throw new Error("Missing required fields");
 
         const exist = await product_getByName(
             product_name,
-            kiot_id ? liot_id : body.kiot_id,
+            kiot_id ? kiot_id : data.kiot_id,
             category
         );
 
         if (exist) throw new Error("Product has already exist");
 
         const result = await product_create({
-            kiot_id: kiot_id ? kiot_id : body.kiot_id,
+            kiot_id: kiot_id ? kiot_id : data.kiot_id,
             product_name,
             price,
             image,
@@ -118,7 +119,7 @@ export const create = async (req, res) => {
             description,
             active,
         });
-        res.json(
+        res.send(
             RESPONSE(
                 {
                     [Fields.productInfo]: result,
@@ -127,19 +128,24 @@ export const create = async (req, res) => {
             )
         );
     } catch (e) {
-        res.status(400).json(
+        res.status(400).send(
             RESPONSE([], "Create unsuccessful", e.errors, e.message)
         );
     }
 };
 
 export const update = async (req, res) => {
-    const image = req.imageUrl;
+    const data = req.body;
 
-    const body = JSON.parse(JSON.stringify(req.body)); // req.body = [Object: null prototype] { title: 'product' }
-
-    const { productId, active, product_name, price, category, description } =
-        body;
+    const {
+        productId,
+        active,
+        product_name,
+        price,
+        category,
+        description,
+        image,
+    } = data;
 
     try {
         if (!productId) throw new Error("Missing required fields");
@@ -153,7 +159,7 @@ export const update = async (req, res) => {
             category,
             description,
         });
-        res.json(
+        res.send(
             RESPONSE(
                 {
                     [Fields.productInfo]: result,
@@ -167,7 +173,7 @@ export const update = async (req, res) => {
             const element = e.errors[key];
             messages.push(element.message);
         }
-        res.status(400).json({
+        res.status(400).send({
             error: messages,
             message: "Update unsuccessful 1",
             catch: e.message,

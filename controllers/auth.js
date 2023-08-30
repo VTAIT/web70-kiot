@@ -37,7 +37,7 @@ export const loginController = async (req, res) => {
         };
         const token = jwtSign(jwtPayload, 60 * 24);
 
-        res.json(
+        res.send(
             RESPONSE(
                 {
                     [Fields.acceptToken]: token,

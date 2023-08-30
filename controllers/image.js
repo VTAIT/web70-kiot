@@ -1,7 +1,15 @@
 import { RESPONSE } from "../globals/api.js";
 import { Fields } from "../globals/fields.js";
-import { image_create, image_getAll, image_getAllByKiot, image_getById, image_getByName, image_updateById } from "../services/mongo/image.js";
+import {
+    image_create,
+    image_getAll,
+    image_getAllByKiot,
+    image_getById,
+    image_getByName,
+    image_updateById,
+} from "../services/mongo/image.js";
 import { uploadStream } from "../middlewares/multer.js";
+import { env } from "../globals/config.js";
 
 export const getAll = async (req, res) => {
     try {
@@ -22,22 +30,14 @@ export const getAll = async (req, res) => {
             RESPONSE(
                 {
                     [Fields.imageList]: imageFromDb,
-                    [Fields.cussor]: imageFromDb.slice(-1)[0]._id - 1
+                    [Fields.cussor]: imageFromDb.slice(-1)[0]._id - 1,
                 },
-                "Successful",
+                "Successful"
             )
         );
-
     } catch (e) {
-        console.log(e)
-        res.status(400).send(
-            RESPONSE(
-                [],
-                "Unsuccessful",
-                e.errors,
-                e.message
-            )
-        );
+        console.log(e);
+        res.status(400).send(RESPONSE([], "Unsuccessful", e.errors, e.message));
     }
 };
 
@@ -52,65 +52,48 @@ export const getById = async (req, res) => {
         res.send(
             RESPONSE(
                 {
-                    [Fields.imageInfo]: imageFromDb
+                    [Fields.imageInfo]: imageFromDb,
                 },
-                "Successful",
+                "Successful"
             )
         );
     } catch (e) {
-        res.status(400).send(
-            RESPONSE(
-                [],
-                "Unsuccessful",
-                e.errors,
-                e.message
-            )
-        );
+        res.status(400).send(RESPONSE([], "Unsuccessful", e.errors, e.message));
     }
 };
 
 export const create = async (req, res) => {
     try {
-        const { kiot_id, name_file } = req.body;
+        const body = JSON.parse(JSON.stringify(req.body));
+        const { kiot_id, name_file } = body;
+
         const src = await uploadStream(req.file.buffer);
 
-        if (
-            !kiot_id
-            || !name_file
-            || !src
-        ) throw new Error("Missing required fields");
+        if (!kiot_id || !name_file || !src)
+            throw new Error("Missing required fields");
 
         const result = await image_create({
             kiot_id,
             name_file,
-            src: src.public_id
+            src: `${env.BASE_URL_IMAGE}/${src.public_id}`,
         });
         res.send(
             RESPONSE(
                 {
-                    [Fields.imageInfo]: result
+                    [Fields.imageInfo]: result,
                 },
-                "Create successful",
+                "Create successful"
             )
         );
     } catch (e) {
         res.status(400).send(
-            RESPONSE(
-                [],
-                "Create unsuccessful",
-                e.errors,
-                e.message
-            )
+            RESPONSE([], "Create unsuccessful", e.errors, e.message)
         );
     }
 };
 
 export const update = async (req, res) => {
-    const {
-        imageId,
-        name_file,
-        active
-    } = req.body;
+    const { imageId, name_file, active } = req.body;
 
     try {
         if (!imageId) throw new Error("Missing required fields");
@@ -118,25 +101,20 @@ export const update = async (req, res) => {
         const result = await image_updateById({
             imageId,
             name_file,
-            active
+            active,
         });
 
         res.send(
             RESPONSE(
                 {
-                    [Fields.productInfo]: result
+                    [Fields.productInfo]: result,
                 },
-                "Update successful",
+                "Update successful"
             )
         );
     } catch (e) {
         res.status(400).send(
-            RESPONSE(
-                [],
-                "Update unsuccessful",
-                e.errors,
-                e.message
-            )
+            RESPONSE([], "Update unsuccessful", e.errors, e.message)
         );
     }
 };
