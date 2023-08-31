@@ -1,5 +1,5 @@
 import { RESPONSE } from "../globals/api.js";
-import { Fields } from "../globals/fields.js";
+import { ResponseFields } from "../globals/fields/response.js";
 import { ProductModel } from "../globals/mongodb.js";
 
 import {
@@ -19,7 +19,7 @@ export const getAll = async (req, res) => {
     try {
         const { kiot_id, role } = req.users;
 
-        let cussor = req.query[Fields.cussor];
+        let cussor = req.query[ResponseFields.cussor];
         if (!Number(cussor)) cussor = -1;
 
         let productFromDb = [];
@@ -54,10 +54,11 @@ export const getAll = async (req, res) => {
         res.send(
             RESPONSE(
                 {
-                    [Fields.productList]: productFromDb,
-                    [Fields.saleOffProductList]: saleOffProductList,
-                    [Fields.saleOffTransactionList]: saleOffTransactionList,
-                    [Fields.cussor]: productFromDb.slice(-1)[0]._id - 1,
+                    [ResponseFields.productList]: productFromDb,
+                    [ResponseFields.saleOffProductList]: saleOffProductList,
+                    [ResponseFields.saleOffTransactionList]:
+                        saleOffTransactionList,
+                    [ResponseFields.cussor]: productFromDb.slice(-1)[0]._id - 1,
                 },
                 "Successful"
             )
@@ -68,7 +69,7 @@ export const getAll = async (req, res) => {
 };
 
 export const getById = async (req, res) => {
-    const id = req.query[Fields.did];
+    const id = req.query[ResponseFields.did];
 
     try {
         if (!id) throw new Error("Missing required fields");
@@ -78,7 +79,7 @@ export const getById = async (req, res) => {
         res.send(
             RESPONSE(
                 {
-                    [Fields.productInfo]: productFromDb,
+                    [ResponseFields.productInfo]: productFromDb,
                 },
                 "Successful"
             )
@@ -122,7 +123,7 @@ export const create = async (req, res) => {
         res.send(
             RESPONSE(
                 {
-                    [Fields.productInfo]: result,
+                    [ResponseFields.productInfo]: result,
                 },
                 "Create successful"
             )
@@ -162,7 +163,7 @@ export const update = async (req, res) => {
         res.send(
             RESPONSE(
                 {
-                    [Fields.productInfo]: result,
+                    [ResponseFields.productInfo]: result,
                 },
                 "Update successful"
             )

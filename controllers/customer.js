@@ -1,11 +1,11 @@
 import { RESPONSE } from "../globals/api.js";
-import { limit } from "../globals/config.js";
-import { Fields } from "../globals/fields.js";
+import { MongoFields } from "../globals/fields/mongo.js";
+import { ResponseFields } from "../globals/fields/response.js";
 import { customer_create, customer_getAll, customer_getAllByKiot, customer_getById, customer_getByUserName, customer_updateById } from "../services/mongo/customer.js";
 
 export const getAll = async (req, res) => {
     const { kiot_id, role } = req.users;
-    let cussor = req.query[Fields.cussor];
+    let cussor = req.query[ResponseFields.cussor];
 
     if (!Number(cussor)) cussor = -1;
     let customerFromDb = [];
@@ -20,8 +20,8 @@ export const getAll = async (req, res) => {
         res.send(
             RESPONSE(
                 {
-                    [Fields.customerList]: customerFromDb,
-                    [Fields.cussor]: customerFromDb.slice(-1)[0]._id - 1
+                    [ResponseFields.customerList]: customerFromDb,
+                    [ResponseFields.cussor]: customerFromDb.slice(-1)[0][MongoFields.id] - 1
                 },
                 "Successful",
             )
@@ -39,8 +39,8 @@ export const getAll = async (req, res) => {
 };
 
 export const getById = async (req, res) => {
-    const id = req.query["Did"];
-
+    const id = req.query[ResponseFields.did];
+    
     try {
         if (!id) throw new Error("Missing required fields");
 
@@ -49,7 +49,7 @@ export const getById = async (req, res) => {
         res.send(
             RESPONSE(
                 {
-                    [Fields.customerInfo]: customerFromDb
+                    [ResponseFields.customerInfo]: customerFromDb
                 },
                 "Successful",
             )
@@ -101,7 +101,7 @@ export const create = async (req, res) => {
         res.send(
             RESPONSE(
                 {
-                    [Fields.customerInfo]: customerDoc
+                    [ResponseFields.customerInfo]: customerDoc
                 },
                 "Create successful",
             )
@@ -127,7 +127,8 @@ export const update = async (req, res) => {
         address,
         gender,
         transaction,
-        rank
+        rank,
+        active
     } = req.body;
 
     try {
@@ -141,12 +142,13 @@ export const update = async (req, res) => {
             address,
             gender,
             transaction,
-            rank
+            rank,
+            active: Boolean(active)
         });
         res.send(
             RESPONSE(
                 {
-                    [Fields.customerInfo]: result
+                    [ResponseFields.customerInfo]: result
                 },
                 "Update successful",
             )

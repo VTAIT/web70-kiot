@@ -1,15 +1,16 @@
-import { hashPassWord, limit } from "../globals/config.js";
+import { hashPassWord } from "../globals/config.js";
 import { user_create, user_getAll, user_getAllByKiot, user_getById, user_getByUserName, user_updateById } from "../services/mongo/user.js";
 import { kiot_create } from "../services/mongo/kiot.js";
 import { registe_getAll, registe_getById } from "../services/mongo/register.js";
 import { RESPONSE } from "../globals/api.js";
-import { Fields } from "../globals/fields.js";
+import { ResponseFields } from "../globals/fields/response.js";
+import { MongoFields } from "../globals/fields/mongo.js";
 
 export const getAll = async (req, res) => {
     try {
         const { kiot_id, role } = req.users;
 
-        let cussor = req.query[Fields.cussor];
+        let cussor = req.query[ResponseFields.cussor];
         if (!Number(cussor)) cussor = -1;
 
         let accountFromDb = [];
@@ -24,8 +25,8 @@ export const getAll = async (req, res) => {
         res.send(
             RESPONSE(
                 {
-                    [Fields.accountList]: accountFromDb,
-                    [Fields.cussor]: accountFromDb.slice(-1)[0]._id - 1
+                    [ResponseFields.accountList]: accountFromDb,
+                    [ResponseFields.cussor]: accountFromDb.slice(-1)[0]._id - 1
                 },
                 "Successful",
             )
@@ -43,17 +44,17 @@ export const getAll = async (req, res) => {
 };
 
 export const getById = async (req, res) => {
-    const id = req.query["Did"];
+    const id = req.query[ResponseFields.did];
 
     try {
-        if (!id) throw new Error("Missing required fields");
+        if (!id) throw new Error("Missing required ResponseFields");
 
         const accountFromDb = await user_getById(id);
 
         res.send(
             RESPONSE(
                 {
-                    [Fields.userInfo]: accountFromDb
+                    [ResponseFields.userInfo]: accountFromDb
                 },
                 "Successful",
             )
@@ -89,7 +90,7 @@ export const create = async (req, res) => {
             || !fullName
             || !phone
             || !address
-        ) throw new Error("Missing required fields");
+        ) throw new Error("Missing required ResponseFields");
 
         if (await user_getByUserName(username)) throw new Error("User has already exist");
 
@@ -108,10 +109,12 @@ export const create = async (req, res) => {
             kiot_id
         });
 
+        delete userDoc[MongoFields.doc].password;
+
         res.send(
             RESPONSE(
                 {
-                    [Fields.userInfo]: userDoc
+                    [ResponseFields.userInfo]: userDoc
                 },
                 "Create successful",
             )
@@ -131,7 +134,7 @@ export const create = async (req, res) => {
 export const update = async (req, res) => {
     const { userId, password, email, fullName, phone, address, active, gender, role_id, status } = req.body;
     try {
-        if (!userId) throw new Error("Missing required fields");
+        if (!userId) throw new Error("Missing required ResponseFields");
 
         const result = await user_updateById({
             userId,
@@ -140,16 +143,18 @@ export const update = async (req, res) => {
             fullName,
             phone,
             address,
-            active,
+            active: Boolean(active),
             gender,
             role_id: userId === req.users.id ? req.users.role : role_id,
             status
         });
 
+        delete result[MongoFields.doc].password;
+
         res.send(
             RESPONSE(
                 {
-                    [Fields.userInfo]: result
+                    [ResponseFields.userInfo]: result
                 },
                 "Update successful",
             )
@@ -168,7 +173,7 @@ export const update = async (req, res) => {
 
 export const getAllAccept = async (req, res) => {
     const { role } = req.users;
-    let cussor = req.query[Fields.cussor];
+    let cussor = req.query[ResponseFields.cussor];
     if (!Number(cussor)) cussor = -1;
 
     try {
@@ -181,8 +186,8 @@ export const getAllAccept = async (req, res) => {
         res.send(
             RESPONSE(
                 {
-                    [Fields.accountList]: RegisterFromDb,
-                    [Fields.cussor]: RegisterFromDb.slice(-1)[0]._id - 1
+                    [ResponseFields.accountList]: RegisterFromDb,
+                    [ResponseFields.cussor]: RegisterFromDb.slice(-1)[0]._id - 1
                 },
                 "Successful",
             )
@@ -209,7 +214,8 @@ export const acceptById = async (req, res) => {
 
         if (!AccountFromDb) throw new Error('Account does not exist');
 
-        const { username,
+        const { 
+            username,
             password,
             email,
             fullName,
@@ -231,15 +237,18 @@ export const acceptById = async (req, res) => {
             phone,
             address,
             role_id: 2,
-            kiot_id: kiotModel._id.toString()
+            kiot_id: kiotModel[MongoFields.id]
         }, false);
 
-        AccountFromDb.status = 1;
+        AccountFromDb[MongoFields.status] = 1;
         await AccountFromDb.save();
+
+        delete result[MongoFields.doc].password;
+
         res.send(
             RESPONSE(
                 {
-                    [Fields.userInfo]: result
+                    [ResponseFields.userInfo]: result
                 },
                 "Active successfully",
             )

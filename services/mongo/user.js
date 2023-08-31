@@ -1,5 +1,5 @@
 import { hashPassWord, limit } from "../../globals/config.js";
-import { Fields } from "../../globals/fields.js";
+import { MongoFields } from "../../globals/fields/mongo.js";
 import { UserModel } from "../../globals/mongodb.js";
 
 export const user_create = async (data, isHashPassword = true) => {
@@ -26,9 +26,7 @@ export const user_create = async (data, isHashPassword = true) => {
         kiot_id
     });
 
-    const result = await userDoc.save();
-    return result;
-
+    return await userDoc.save();
 };
 
 export const user_updateById = async (data) => {
@@ -90,32 +88,32 @@ export const user_updateById = async (data) => {
 
 export const user_getByUserName = async (username, isShowPassword = false) => {
     if (isShowPassword) return await UserModel.findOne({ username: username });
-    return await UserModel.findOne({ username: username }).select("-password");;
+    return await UserModel.findOne({ [MongoFields.username]: username }).select("-password");;
 };
 
 export const user_getById = async (id, isShowPassword = false) => {
-    if (isShowPassword) return await UserModel.findOne({ _id: id })
-    return await UserModel.findOne({ _id: id }).select("-password");
+    if (isShowPassword) return await UserModel.findOne({ [MongoFields.id]: id })
+    return await UserModel.findOne({ [MongoFields.id]: id }).select("-password");
 };
 
 export const user_getAll = async (isShowPassword = false, cussor = -1) => {
     let query = {};
 
     if (cussor > 0) {
-        query[Fields.id] = { $lte: cussor };
+        query[MongoFields.id] = { $lte: cussor };
     }
 
-    if (isShowPassword) return await UserModel.find(query).sort({ [Fields.id]: -1 }).limit(limit);
-    return await UserModel.find(query).sort({ [Fields.id]: -1 }).limit(limit).select("-password");
+    if (isShowPassword) return await UserModel.find(query).sort({ [MongoFields.id]: -1 }).limit(limit);
+    return await UserModel.find(query).sort({ [MongoFields.id]: -1 }).limit(limit).select("-password");
 };
 
 export const user_getAllByKiot = async (kiotId, isShowPassword = false, cussor = -1) => {
-    let query = { kiotId: kiotId };
+    let query = { [MongoFields.kiot_id]: kiotId };
 
     if (cussor > 0) {
-        query[Fields.id] = { $lte: cussor };
+        query[MongoFields.id] = { $lte: cussor };
     }
 
-    if (isShowPassword) return awaitUserModel.find(query).sort({ [Fields.id]: -1 }).limit(limit);
-    return await UserModel.find(query).sort({ [Fields.id]: -1 }).limit(limit).select("-password");
+    if (isShowPassword) return await UserModel.find(query).sort({ [MongoFields.id]: -1 }).limit(limit);
+    return await UserModel.find(query).sort({ [MongoFields.id]: -1 }).limit(limit).select("-password");
 };

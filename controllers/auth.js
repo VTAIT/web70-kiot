@@ -2,11 +2,12 @@ import { comparePassWord } from "../globals/config.js";
 import { jwtSign } from "../globals/jwt.js";
 import { user_getById, user_getByUserName } from "../services/mongo/user.js";
 import {
-    registe_getByUserName,
+    registe_getOneByUserName,
     register_create,
 } from "../services/mongo/register.js";
-import { Fields } from "../globals/fields.js";
+import { ResponseFields } from "../globals/fields/response.js";
 import { RESPONSE } from "../globals/api.js";
+import { MongoFields } from "../globals/fields/mongo.js";
 
 export const loginController = async (req, res) => {
     const { username, password } = req.body;
@@ -30,17 +31,17 @@ export const loginController = async (req, res) => {
 
         // Create JWT Token & Response to client
         const jwtPayload = {
-            id: existingUser._id,
-            username: existingUser.username,
-            role: existingUser.role_id,
-            kiot_id: existingUser.kiot_id,
+            id: existingUser[MongoFields.id],
+            [MongoFields.username]: existingUser[MongoFields.username],
+            role: existingUser[MongoFields.role_id],
+            [MongoFields.kiot_id]: existingUser[MongoFields.kiot_id],
         };
         const token = jwtSign(jwtPayload, 60 * 24);
 
         res.send(
             RESPONSE(
                 {
-                    [Fields.acceptToken]: token,
+                    [ResponseFields.acceptToken]: token,
                 },
                 "Login successfully"
             )
@@ -66,8 +67,8 @@ export const registerController = async (req, res) => {
             throw new Error("User has already exist");
 
         // Tránh đăng ký 2 lần giống nhau
-        const registerList = await registe_getByUserName(username);
-        if (registerList.length) throw new Error("Register has already exist");
+        const registerList = await registe_getOneByUserName(username);
+        if (registerList) throw new Error("Register has already exist");
 
         // 3 Create new register object
         const newRegister = await register_create({
@@ -79,12 +80,12 @@ export const registerController = async (req, res) => {
             address,
             gender,
         });
-
+        delete newRegister[MongoFields.doc].password;
         // 4. Response to client
         res.send(
             RESPONSE(
                 {
-                    [Fields.userInfo]: newRegister,
+                    [ResponseFields.userInfo]: newRegister,
                 },
                 "Register new user successfully"
             )
@@ -105,7 +106,7 @@ export const getMeController = async (req, res) => {
         res.send(
             RESPONSE(
                 {
-                    [Fields.userInfo]: currentUser,
+                    [ResponseFields.userInfo]: currentUser,
                 },
                 "Successfully"
             )

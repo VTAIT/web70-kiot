@@ -1,11 +1,10 @@
 import { RESPONSE } from "../globals/api.js";
-import { limit } from "../globals/config.js";
-import { Fields } from "../globals/fields.js";
+import { ResponseFields } from "../globals/fields/response.js";
 import { saleoff_create, saleoff_getAll, saleoff_getAllByKiot, saleoff_getById, saleoff_getByName, saleoff_updateById } from "../services/mongo/saleoff.js";
 
 export const getAll = async (req, res) => {
     const { kiot_id, role } = req.users;
-    let cussor = req.query[Fields.cussor];
+    let cussor = req.query[ResponseFields.cussor];
     if (!Number(cussor)) cussor = -1;
 
     let saleOffFromDb = [];
@@ -38,9 +37,9 @@ export const getAll = async (req, res) => {
         res.send(
             RESPONSE(
                 {
-                    [Fields.saleOffProductList]: saleOffProductList,
-                    [Fields.saleOffTransactionList]: saleOffTransactionList,
-                    [Fields.cussor]: saleOffFromDb.slice(-1)[0]._id - 1
+                    [ResponseFields.saleOffProductList]: saleOffProductList,
+                    [ResponseFields.saleOffTransactionList]: saleOffTransactionList,
+                    [ResponseFields.cussor]: saleOffFromDb.slice(-1)[0]._id - 1
                 },
                 "Successful",
             )
@@ -59,7 +58,7 @@ export const getAll = async (req, res) => {
 };
 
 export const getById = async (req, res) => {
-    const id = req.query["Did"];
+    const id = req.query[ResponseFields.did];
 
     try {
         if (!id) throw new Error("Missing required fields");
@@ -69,7 +68,7 @@ export const getById = async (req, res) => {
         res.send(
             RESPONSE(
                 {
-                    [Fields.saleOffInfo]: saleOffFromDb
+                    [ResponseFields.saleOffInfo]: saleOffFromDb
                 },
                 "Successful",
             )
@@ -116,7 +115,7 @@ export const create = async (req, res) => {
         res.send(
             RESPONSE(
                 {
-                    [Fields.saleOffInfo]: result
+                    [ResponseFields.saleOffInfo]: result
                 },
                 "Create successful",
             )
@@ -151,12 +150,12 @@ export const update = async (req, res) => {
             price,
             image,
             type,
-            active
+            active: Boolean(active)
         });
         res.send(
             RESPONSE(
                 {
-                    [Fields.saleOffInfo]: result
+                    [ResponseFields.saleOffInfo]: result
                 },
                 "Update successful",
             )

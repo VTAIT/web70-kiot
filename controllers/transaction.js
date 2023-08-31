@@ -1,10 +1,10 @@
 import { RESPONSE } from "../globals/api.js";
-import { Fields } from "../globals/fields.js";
+import { ResponseFields } from "../globals/fields/response.js";
 import { transaction_create, transaction_getAll, transaction_getAllByKiot, transaction_getById, transaction_updateById } from "../services/mongo/transaction.js";
 
 export const getAll = async (req, res) => {
     const { kiot_id, role } = req.users;
-    let cussor = req.query[Fields.cussor];
+    let cussor = req.query[ResponseFields.cussor];
     if (!Number(cussor)) cussor = -1;
 
     let transactionFromDb = [];
@@ -19,8 +19,8 @@ export const getAll = async (req, res) => {
         res.send(
             RESPONSE(
                 {
-                    [Fields.transactionList]: transactionFromDb,
-                    [Fields.cussor]: transactionFromDb.slice(-1)[0]._id - 1
+                    [ResponseFields.transactionList]: transactionFromDb,
+                    [ResponseFields.cussor]: transactionFromDb.slice(-1)[0]._id - 1
                 },
                 "Successful",
             )
@@ -39,7 +39,7 @@ export const getAll = async (req, res) => {
 };
 
 export const getById = async (req, res) => {
-    const id = req.query["Did"];
+    const id = req.query[ResponseFields.did];
 
     try {
         if (!id) throw new Error("Missing required fields");
@@ -49,7 +49,7 @@ export const getById = async (req, res) => {
         res.send(
             RESPONSE(
                 {
-                    [Fields.transactiontInfo]: transactionFromDb
+                    [ResponseFields.transactiontInfo]: transactionFromDb
                 },
                 "Successful",
             )
@@ -99,7 +99,7 @@ export const create = async (req, res) => {
         res.send(
             RESPONSE(
                 {
-                    [Fields.transactiontInfo]: transactionDoc
+                    [ResponseFields.transactiontInfo]: transactionDoc
                 },
                 "Create successful",
             )
@@ -142,7 +142,7 @@ export const update = async (req, res) => {
         res.send(
             RESPONSE(
                 {
-                    [Fields.transactiontInfo]: result
+                    [ResponseFields.transactiontInfo]: result
                 },
                 "Update successful",
             )

@@ -1,5 +1,5 @@
 import { limit } from "../../globals/config.js";
-import { Fields } from "../../globals/fields.js";
+import { MongoFields } from "../../globals/fields/mongo.js";
 import { CustomerModel } from "../../globals/mongodb.js";
 
 export const customer_create = async (data) => {
@@ -23,7 +23,8 @@ export const customer_create = async (data) => {
         kiot_id,
         gender,
         transactionHistory: [],
-        rank: 1
+        rank: 1,
+        active: true
     });
 
     return await customerDoc.save();
@@ -38,7 +39,8 @@ export const customer_updateById = async (data) => {
         address,
         gender,
         transaction,
-        rank
+        rank,
+        active
     } = data;
 
     const existingCustomer = await customer_getById(customerId);
@@ -73,6 +75,10 @@ export const customer_updateById = async (data) => {
         existingCustomer.transactionHistory.push(transactionHistory);
     }
 
+    if (active !== existingCustomer.active) {
+        existingCustomer.active = active;
+    }
+
     return await existingCustomer.save();
 };
 
@@ -80,24 +86,24 @@ export const customer_getAll = async (cussor = -1) => {
     let query = {};
 
     if (cussor > 0) {
-        query[Fields.id] = { $lte: cussor };
+        query[MongoFields.id] = { $lte: cussor };
     }
-    return await CustomerModel.find(query).sort({ [Fields.id]: -1 }).limit(limit);
+    return await CustomerModel.find(query).sort({ [MongoFields.id]: -1 }).limit(limit);
 };
 
 export const customer_getById = async (id) => {
-    return await CustomerModel.findOne({ _id: id });
+    return await CustomerModel.findOne({ [MongoFields.id]: id });
 };
 
-export const customer_getByUserName = async (username, kiot_id) => {
-    return await CustomerModel.findOne({ username: username, kiot_id: kiot_id });
+export const customer_getByUserName = async (fullName, kiot_id) => {
+    return await CustomerModel.findOne({ [MongoFields.fullName]: fullName, [MongoFields.kiot_id]: kiot_id });
 };
 
 export const customer_getAllByKiot = async (kiot_id, cussor = -1) => {
-    let query = { kiot_id: kiot_id };
+    let query = { [MongoFields.kiot_id]: kiot_id };
 
     if (cussor > 0) {
-        query[Fields.id] = { $lte: cussor };
+        query[MongoFields.id] = { $lte: cussor };
     }
-    return await CustomerModel.find(query).sort({ [Fields.id]: -1 }).limit(50);
+    return await CustomerModel.find(query).sort({ [MongoFields.id]: -1 }).limit(50);
 };

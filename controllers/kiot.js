@@ -1,6 +1,5 @@
 import { RESPONSE } from "../globals/api.js";
-import { limit } from "../globals/config.js";
-import { Fields } from "../globals/fields.js";
+import { ResponseFields } from "../globals/fields/response.js";
 import {
     kiot_getAll,
     kiot_getById,
@@ -9,7 +8,7 @@ import {
 
 export const getAll = async (req, res) => {
     const { role } = req.users;
-    let cussor = req.query[Fields.cussor];
+    let cussor = req.query[ResponseFields.cussor];
     if (!Number(cussor)) cussor = -1;
 
     let kiotFromDb = [];
@@ -22,8 +21,8 @@ export const getAll = async (req, res) => {
         return res.send(
             RESPONSE(
                 {
-                    [Fields.kiotList]: kiotFromDb,
-                    [Fields.cussor]: kiotFromDb.slice(-1)[0]._id - 1,
+                    [ResponseFields.kiotList]: kiotFromDb,
+                    [ResponseFields.cussor]: kiotFromDb.slice(-1)[0]._id - 1,
                 },
                 "Successful"
             )
@@ -35,7 +34,7 @@ export const getAll = async (req, res) => {
 
 export const getById = async (req, res) => {
     const { kiot_id, role } = req.users;
-    const id = req.query["Did"];
+    const id = req.query[ResponseFields.did];
 
     let kiotFromDb = [];
     try {
@@ -49,7 +48,7 @@ export const getById = async (req, res) => {
         res.send(
             RESPONSE(
                 {
-                    [Fields.kiotInfo]: kiotFromDb,
+                    [ResponseFields.kiotInfo]: kiotFromDb,
                 },
                 "Successful"
             )
@@ -68,7 +67,7 @@ export const update = async (req, res) => {
 
         const result = await kiot_updateById({
             kiot_id,
-            active,
+            active: Boolean(active),
             fullName,
             phone,
             email,
@@ -78,7 +77,7 @@ export const update = async (req, res) => {
         res.send(
             RESPONSE(
                 {
-                    [Fields.kiotInfo]: result,
+                    [ResponseFields.kiotInfo]: result,
                 },
                 "Update successful"
             )
