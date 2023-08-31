@@ -19,7 +19,7 @@ export const getAll = async (req, res) => {
     try {
         const { kiot_id, role } = req.users;
 
-        let cussor = req.query[ResponseFields.cussor];
+        let cussor = parseInt(req.query[ResponseFields.cussor]);
         if (!Number(cussor)) cussor = -1;
 
         let productFromDb = [];
@@ -93,17 +93,17 @@ export const create = async (req, res) => {
     const { id, kiot_id } = req.users;
 
     const data = req.body;
-    const { product_name, price, category, description, active, image } = data;
+    const { name_product, price, category, description, active, image } = data;
 
     try {
         if (
-            (!product_name || !price || !category || !description || !active,
+            (!name_product || !price || !category || !description || !active,
             !image)
         )
             throw new Error("Missing required fields");
 
         const exist = await product_getByName(
-            product_name,
+            name_product,
             kiot_id ? kiot_id : data.kiot_id,
             category
         );
@@ -112,7 +112,7 @@ export const create = async (req, res) => {
 
         const result = await product_create({
             kiot_id: kiot_id ? kiot_id : data.kiot_id,
-            product_name,
+            name_product,
             price,
             image,
             user_id: id,
@@ -141,7 +141,7 @@ export const update = async (req, res) => {
     const {
         productId,
         active,
-        product_name,
+        name_product,
         price,
         category,
         description,
@@ -154,7 +154,7 @@ export const update = async (req, res) => {
         const result = await product_updateById({
             productId,
             active,
-            product_name,
+            name_product,
             price,
             image,
             category,

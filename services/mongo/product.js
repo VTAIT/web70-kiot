@@ -1,10 +1,12 @@
 import { limit } from "../../globals/config.js";
+import { MongoFields } from "../../globals/fields/mongo.js";
 import { ProductModel } from "../../globals/mongodb.js";
+import { formatDate } from "../../utils/index.js";
 
 export const product_create = async (data) => {
     const {
         kiot_id,
-        product_name,
+        name_product,
         price,
         image,
         user_id,
@@ -14,9 +16,9 @@ export const product_create = async (data) => {
     } = data;
 
     const productDoc = new ProductModel({
-        // _id: 0,
+        _id: 0,
         kiot_id,
-        product_name,
+        name_product,
         price,
         image: image
             ? image
@@ -36,7 +38,7 @@ export const product_updateById = async (data) => {
     const {
         productId,
         active,
-        product_name,
+        name_product,
         price,
         image,
         category,
@@ -50,8 +52,8 @@ export const product_updateById = async (data) => {
     // if (name_product === existingProduct.name_product)
     //     throw new Error("Product has already exist");
 
-    if (product_name) {
-        existingProduct.product_name = product_name;
+    if (name_product) {
+        existingProduct.name_product = name_product;
     }
 
     if (price) {

@@ -6,7 +6,7 @@ export const image_create = async (data) => {
     const { kiot_id, name_file, src } = data;
 
     const imageDoc = new ImageModel({
-        // _id: 0,
+        _id: 0,
         kiot_id,
         name_file,
         src,

@@ -16,7 +16,7 @@ ProductSchema.add({
     product_code: {
         type: String,
     },
-    product_name: {
+    name_product: {
         type: String,
         required: [true, "Name is required"],
     },
@@ -50,11 +50,11 @@ ProductSchema.add({
     },
 });
 
-ProductSchema.pre('save', async function () {
+ProductSchema.pre("save", async function () {
     // Don't increment if this is NOT a newly created document
     if (!this.isNew) return;
 
-    const count = await SeqModel.increment('products');
+    const count = await SeqModel.increment("products");
     this._id = count;
 });
 
