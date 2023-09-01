@@ -109,7 +109,7 @@ export const user_getAll = async (isShowPassword = false, cussor = -1) => {
 
 export const user_getAllByKiot = async (kiotId, isShowPassword = false, cussor = -1) => {
     let query = { [MongoFields.kiot_id]: kiotId };
-
+console.log(kiotId)
     if (cussor > 0) {
         query[MongoFields.id] = { $lte: cussor };
     }
