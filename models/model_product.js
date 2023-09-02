@@ -36,13 +36,9 @@ ProductSchema.add({
         type: String,
         required: [true, "decription is required"],
     },
-    promotion: {
-        type: Boolean,
-        default: false,
-    },
-    promotion_rate: {
-        type: Number,
-        default: 0,
+    code: {
+        type: String,
+        default: "",
     },
     customer_rate: {
         type: Number,

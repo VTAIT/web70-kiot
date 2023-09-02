@@ -79,12 +79,59 @@ export const product_updateById = async (data) => {
     return await existingProduct.save();
 };
 
-export const product_getAll = async (cussor = -1) => {
+export const product_getAll = async (conditions) => {
     let query = {};
 
-    if (cussor > 0) {
-        query[MongoFields.id] = { $lte: cussor };
+    const { cussor, search, price, category, fromdate, todate } = conditions;
+
+    let cussorNumber = parseInt(cussor);
+    if (!cussorNumber) cussorNumber = -1;
+
+    if (cussorNumber && cussorNumber > 0) {
+        query[MongoFields.id] = { $lte: cussorNumber };
     }
+
+    if (search) {
+        const id = parseInt(search);
+        if (id) {
+            query[MongoFields.id] = id;
+        } else {
+            query[MongoFields.name_product] = { $regex: search, $options: "i" };
+        }
+    }
+
+    if (price) {
+        const priceRange = price.split("-");
+        const minPrice = parseInt(priceRange[0]);
+        const maxPrice = parseInt(priceRange[1]);
+
+        if (minPrice >= 0 && maxPrice) {
+            query[MongoFields.price] = { $gte: minPrice, $lte: maxPrice };
+        } else if (minPrice) {
+            query[MongoFields.price] = { $gte: minPrice };
+        }
+    }
+
+    if (category) {
+        query[MongoFields.category] = category;
+    }
+
+    if (fromdate && todate) {
+        query[MongoFields.createdAt] = {
+            $gte: new Date(fromdate),
+            $lte: new Date(todate),
+        };
+    }
+
+    if (fromdate && !todate) {
+        query[MongoFields.createdAt] = { $gte: new Date(fromdate) };
+    }
+
+    if (todate && !fromdate) {
+        query[MongoFields.createdAt] = { $lte: new Date(todate) };
+    }
+
+    console.log(query);
 
     return await ProductModel.find(query)
         .sort({ [MongoFields.id]: -1 })
@@ -102,12 +149,59 @@ export const product_getByName = async (name_product, kiot_id) => {
     });
 };
 
-export const product_getAllByKiot = async (kiot_id, cussor = -1) => {
+export const product_getAllByKiot = async (kiot_id, conditions) => {
     let query = { [MongoFields.kiot_id]: kiot_id };
 
-    if (cussor > 0) {
-        query[MongoFields.id] = { $lte: cussor };
+    const { cussor, search, price, category, fromdate, todate } = conditions;
+
+    let cussorNumber = parseInt(cussor);
+    if (!cussorNumber) cussorNumber = -1;
+
+    if (cussorNumber && cussorNumber > 0) {
+        query[MongoFields.id] = { $lte: cussorNumber };
     }
+
+    if (search) {
+        const id = parseInt(search);
+        if (id) {
+            query[MongoFields.id] = id;
+        } else {
+            query[MongoFields.name_product] = { $regex: search, $options: "i" };
+        }
+    }
+
+    if (price) {
+        const priceRange = price.split("-");
+        const minPrice = parseInt(priceRange[0]);
+        const maxPrice = parseInt(priceRange[1]);
+
+        if (minPrice && maxPrice) {
+            query[MongoFields.price] = { $gte: minPrice, $lte: maxPrice };
+        } else if (minPrice) {
+            query[MongoFields.price] = { $gte: minPrice };
+        }
+    }
+
+    if (category) {
+        query[MongoFields.category] = category;
+    }
+
+    if (fromdate && todate) {
+        query[MongoFields.createdAt] = {
+            $gte: new Date(fromdate),
+            $lte: new Date(todate),
+        };
+    }
+
+    if (fromdate && !todate) {
+        query[MongoFields.createdAt] = { $gte: new Date(fromdate) };
+    }
+
+    if (todate && !fromdate) {
+        query[MongoFields.createdAt] = { $lte: new Date(todate) };
+    }
+
+    console.log(query);
 
     return await ProductModel.find(query)
         .sort({ [MongoFields.id]: -1 })

@@ -19,8 +19,7 @@ export const getAll = async (req, res) => {
     try {
         const { kiot_id, role } = req.users;
 
-        let cussor = parseInt(req.query[ResponseFields.cussor]);
-        if (!Number(cussor)) cussor = -1;
+        const conditions = req.query;
 
         let productFromDb = [];
         let saleOffProductList = [];
@@ -28,7 +27,8 @@ export const getAll = async (req, res) => {
 
         // supper admin
         if (role === 1) {
-            productFromDb = await product_getAll(cussor);
+            productFromDb = await product_getAll(conditions);
+
             let array = [];
             productFromDb.forEach((e) => {
                 array.push(e.name_product);
@@ -43,7 +43,7 @@ export const getAll = async (req, res) => {
                 }
             });
         } else {
-            productFromDb = await product_getAllByKiot(kiot_id, cussor);
+            productFromDb = await product_getAllByKiot(kiot_id, conditions);
             let array = [];
             productFromDb.forEach((e) => {
                 array.push(e.name_product);
@@ -58,12 +58,13 @@ export const getAll = async (req, res) => {
                     [ResponseFields.saleOffProductList]: saleOffProductList,
                     [ResponseFields.saleOffTransactionList]:
                         saleOffTransactionList,
-                    [ResponseFields.cussor]: productFromDb.slice(-1)[0]._id - 1,
+                    // [ResponseFields.cussor]: productFromDb.slice(-1)[0]._id - 1,// error if productfromdb = []
                 },
                 "Successful"
             )
         );
     } catch (e) {
+        console.log(e);
         res.status(400).send(RESPONSE([], "Unsuccessful", e.errors, e.message));
     }
 };
