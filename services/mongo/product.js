@@ -85,7 +85,10 @@ export const product_getAll = async (conditions) => {
     const { cussor, search, price, category, fromdate, todate } = conditions;
 
     let cussorNumber = parseInt(cussor);
-    if (!cussorNumber) cussorNumber = -1;
+
+    if (!cussorNumber || search || price || category || fromdate || todate) {
+        cussorNumber = -1;
+    }
 
     if (cussorNumber && cussorNumber > 0) {
         query[MongoFields.id] = { $lte: cussorNumber };
@@ -101,7 +104,7 @@ export const product_getAll = async (conditions) => {
     }
 
     if (price) {
-        const priceRange = price.split("-");
+        const priceRange = price.split("-"); //value in client = ["0-50", "50-100", "100"];
         const minPrice = parseInt(priceRange[0]);
         const maxPrice = parseInt(priceRange[1]);
 
@@ -155,7 +158,18 @@ export const product_getAllByKiot = async (kiot_id, conditions) => {
     const { cussor, search, price, category, fromdate, todate } = conditions;
 
     let cussorNumber = parseInt(cussor);
-    if (!cussorNumber) cussorNumber = -1;
+
+    if (
+        !cussorNumber ||
+        kiot_id ||
+        search ||
+        price ||
+        category ||
+        fromdate ||
+        todate
+    ) {
+        cussorNumber = -1;
+    }
 
     if (cussorNumber && cussorNumber > 0) {
         query[MongoFields.id] = { $lte: cussorNumber };
@@ -171,7 +185,7 @@ export const product_getAllByKiot = async (kiot_id, conditions) => {
     }
 
     if (price) {
-        const priceRange = price.split("-");
+        const priceRange = price.split("-"); //value in client = ["0-50", "50-100", "100"];
         const minPrice = parseInt(priceRange[0]);
         const maxPrice = parseInt(priceRange[1]);
 
