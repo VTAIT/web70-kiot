@@ -79,16 +79,24 @@ export const product_updateById = async (data) => {
     return await existingProduct.save();
 };
 
-export const product_getAll = async (conditions) => {
+export const product_getAll = async (cussor = -1) => {
+    let query = {};
+
+    if (cussor > 0) {
+        query[MongoFields.id] = { $lte: cussor };
+    }
+
+    return await ProductModel.find(query)
+        .sort({ [MongoFields.id]: -1 })
+        .limit(limit);
+};
+
+export const product_getAll_query = async (conditions) => {
     let query = {};
 
     const { cussor, search, price, category, fromdate, todate } = conditions;
 
     let cussorNumber = parseInt(cussor);
-
-    if (!cussorNumber || search || price || category || fromdate || todate) {
-        cussorNumber = -1;
-    }
 
     if (cussorNumber && cussorNumber > 0) {
         query[MongoFields.id] = { $lte: cussorNumber };
@@ -152,7 +160,19 @@ export const product_getByName = async (name_product, kiot_id) => {
     });
 };
 
-export const product_getAllByKiot = async (kiot_id, conditions) => {
+export const product_getAllByKiot = async (kiot_id, cussor = -1) => {
+    let query = { [MongoFields.kiot_id]: kiot_id };
+
+    if (cussor > 0) {
+        query[MongoFields.id] = { $lte: cussor };
+    }
+    console.log(query);
+    return await ProductModel.find(query)
+        .sort({ [MongoFields.id]: -1 })
+        .limit(limit);
+};
+
+export const product_getAllByKiot_query = async (kiot_id, conditions) => {
     let query = { [MongoFields.kiot_id]: kiot_id };
 
     const { cussor, search, price, category, fromdate, todate } = conditions;

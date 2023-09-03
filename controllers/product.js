@@ -6,12 +6,15 @@ import {
     product_create,
     product_getAll,
     product_getAllByKiot,
+    product_getAllByKiot_query,
+    product_getAll_query,
     product_getById,
     product_getByName,
     product_updateById,
 } from "../services/mongo/product.js";
 import {
     saleoff_getByArray,
+    saleoff_getByArray_admin,
     saleoff_getByTracsaction,
 } from "../services/mongo/saleoff.js";
 
@@ -19,21 +22,24 @@ export const getAll = async (req, res) => {
     try {
         const { kiot_id, role } = req.users;
 
-        const conditions = req.query;
+        let cussor = parseInt(req.query[ResponseFields.cussor]);
 
         let productFromDb = [];
         let saleOffProductList = [];
         let saleOffTransactionList = [];
 
         // supper admin
-        if (role === 1) {
-            productFromDb = await product_getAll(conditions);
+        //when cussor = 0 ~ the last item => return []
+        if (role === 1 && cussor !== 0) {
+            productFromDb = await product_getAll(cussor);
 
             let array = [];
             productFromDb.forEach((e) => {
                 array.push(e.name_product);
             });
-            const saleOffFromDb = await saleoff_getByArray(array);
+
+            const saleOffFromDb = await saleoff_getByArray_admin(array);
+
             saleOffFromDb.forEach((e) => {
                 const type = e.type;
                 if (type === 1) {
@@ -42,8 +48,78 @@ export const getAll = async (req, res) => {
                     saleOffTransactionList.push(e);
                 }
             });
-        } else {
-            productFromDb = await product_getAllByKiot(kiot_id, conditions);
+        } else if (cussor !== 0) {
+            productFromDb = await product_getAllByKiot(kiot_id, cussor);
+
+            let array = [];
+            productFromDb.forEach((e) => {
+                array.push(e.name_product);
+            });
+
+            saleOffProductList = await saleoff_getByArray(array);
+            saleOffTransactionList = await saleoff_getByTracsaction(kiot_id);
+        }
+
+        res.send(
+            RESPONSE(
+                {
+                    [ResponseFields.productList]: productFromDb,
+                    [ResponseFields.saleOffProductList]: saleOffProductList,
+                    [ResponseFields.saleOffTransactionList]:
+                        saleOffTransactionList,
+                    [ResponseFields.cussor]: productFromDb.length
+                        ? productFromDb.slice(-1)[0]._id - 1
+                        : 0,
+                },
+                "Successful"
+            )
+        );
+    } catch (e) {
+        console.log(e);
+        res.status(400).send(RESPONSE([], "Unsuccessful", e.errors, e.message));
+    }
+};
+
+export const getAll_query = async (req, res) => {
+    try {
+        const { kiot_id, role } = req.users;
+
+        let cussor = parseInt(req.query[ResponseFields.cussor]);
+
+        const conditions = req.query;
+
+        console.log("conditions", conditions);
+        console.log("cussor", cussor);
+
+        let productFromDb = [];
+        let saleOffProductList = [];
+        let saleOffTransactionList = [];
+
+        console.log(role === 1 && cussor !== 0);
+        // supper admin
+        if (role === 1 && cussor !== 0) {
+            productFromDb = await product_getAll_query(conditions);
+
+            let array = [];
+
+            productFromDb.forEach((e) => {
+                array.push(e.name_product);
+            });
+
+            const saleOffFromDb = await saleoff_getByArray_admin(array);
+            saleOffFromDb.forEach((e) => {
+                const type = e.type;
+                if (type === 1) {
+                    saleOffProductList.push(e);
+                } else if (type === 2) {
+                    saleOffTransactionList.push(e);
+                }
+            });
+        } else if (cussor !== 0) {
+            productFromDb = await product_getAllByKiot_query(
+                kiot_id,
+                conditions
+            );
             let array = [];
             productFromDb.forEach((e) => {
                 array.push(e.name_product);
@@ -58,7 +134,9 @@ export const getAll = async (req, res) => {
                     [ResponseFields.saleOffProductList]: saleOffProductList,
                     [ResponseFields.saleOffTransactionList]:
                         saleOffTransactionList,
-                    // [ResponseFields.cussor]: productFromDb.slice(-1)[0]._id - 1,// error if productfromdb = []
+                    [ResponseFields.cussor]: productFromDb.length
+                        ? productFromDb.slice(-1)[0]._id - 1
+                        : 0,
                 },
                 "Successful"
             )
