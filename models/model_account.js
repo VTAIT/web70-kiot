@@ -25,6 +25,10 @@ AccountSchema.add({
     status: {
         type: Number,
         cast: '{VALUE} is invalid',
+    },
+    avatarUrl: {
+        type: String,
+        cast: '{VALUE} is invalid',
     }
 });
 

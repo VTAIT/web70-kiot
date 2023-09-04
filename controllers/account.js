@@ -12,6 +12,7 @@ import { registe_getAll, registe_getById } from "../services/mongo/register.js";
 import { RESPONSE } from "../globals/api.js";
 import { ResponseFields } from "../globals/fields/response.js";
 import { MongoFields } from "../globals/fields/mongo.js";
+import { uploadStream } from "../middlewares/multer.js";
 
 export const getAll = async (req, res) => {
   try {
@@ -24,7 +25,7 @@ export const getAll = async (req, res) => {
 
     // supper admin
     if (role === 1) {
-      kiot_id = req.query.kiotId;
+      kiot_id = req.query[ResponseFields.did];
     }
     accountFromDb = await user_getAllByKiot(kiot_id, cussor);
 
@@ -230,5 +231,40 @@ export const acceptById = async (req, res) => {
     res
       .status(400)
       .send(RESPONSE([], "Active unsuccessful", e.errors, e.message));
+  }
+};
+
+export const avatarUpload = async (req, res) => {
+  try {
+    const { id } = req.users;
+    
+    const src = await uploadStream(req.file.buffer);
+    
+    if (!src) throw new Error("Missing required fields");
+    
+try {
+  const result = await user_updateById({
+    userId: id,
+    avatarUrl: src.url,
+  });
+} catch (error) {
+  console.log(error)
+}
+    const result = await user_updateById({
+      userId: id,
+      avatarUrl: src.url,
+    });
+    delete result[MongoFields.doc].password;
+
+    res.send(
+      RESPONSE(
+        {
+          [ResponseFields.userInfo]: result,
+        },
+        "Update successful"
+      )
+    );
+  } catch (error) {
+    res.status(500).send(error);
   }
 };
