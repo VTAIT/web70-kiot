@@ -1,5 +1,5 @@
 import { jwtVerify } from "../globals/jwt.js";
-import { AUTH } from '../globals/api.js'
+import { AUTH } from "../globals/api.js";
 
 const jwtCheck = (req, res, next) => {
     const token = req.headers[AUTH.accept_token];
@@ -25,6 +25,6 @@ const jwtCheck = (req, res, next) => {
             message: "Token is not valid",
         });
     }
-}
+};
 
 export { jwtCheck };

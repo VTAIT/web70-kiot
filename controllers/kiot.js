@@ -1,6 +1,10 @@
 import { RESPONSE } from "../globals/api.js";
 import { ResponseFields } from "../globals/fields/response.js";
-import { kiot_getAll, kiot_getById, kiot_updateById } from "../services/mongo/kiot.js";
+import {
+    kiot_getAll,
+    kiot_getById,
+    kiot_updateById,
+} from "../services/mongo/kiot.js";
 
 export const getAll = async (req, res) => {
     const { role } = req.users;
@@ -10,7 +14,7 @@ export const getAll = async (req, res) => {
     let kiotFromDb = [];
 
     try {
-        if (role !== 1) throw new Error('You not right');
+        if (role !== 1) throw new Error("You not right");
 
         kiotFromDb = await kiot_getAll(cussor);
 
@@ -18,21 +22,13 @@ export const getAll = async (req, res) => {
             RESPONSE(
                 {
                     [ResponseFields.kiotList]: kiotFromDb,
-                    [ResponseFields.cussor]: kiotFromDb.slice(-1)[0]._id - 1
+                    [ResponseFields.cussor]: kiotFromDb.slice(-1)[0]._id - 1,
                 },
-                "Successful",
+                "Successful"
             )
         );
-
     } catch (e) {
-        res.status(400).send(
-            RESPONSE(
-                [],
-                "Unsuccessful",
-                e.errors,
-                e.message
-            )
-        );
+        res.status(400).send(RESPONSE([], "Unsuccessful", e.errors, e.message));
     }
 };
 
@@ -52,33 +48,19 @@ export const getById = async (req, res) => {
         res.send(
             RESPONSE(
                 {
-                    [ResponseFields.kiotInfo]: kiotFromDb
+                    [ResponseFields.kiotInfo]: kiotFromDb,
                 },
-                "Successful",
+                "Successful"
             )
         );
     } catch (e) {
-        res.status(400).send(
-            RESPONSE(
-                [],
-                "Unsuccessful",
-                e.errors,
-                e.message
-            )
-        );
+        res.status(400).send(RESPONSE([], "Unsuccessful", e.errors, e.message));
     }
 };
 
 export const update = async (req, res) => {
-    const {
-        kiot_id,
-        active,
-        fullName,
-        phone,
-        email,
-        address,
-        describe,
-    } = req.body;
+    const { kiot_id, active, fullName, phone, email, address, describe } =
+        req.body;
 
     try {
         if (!kiot_id) throw new Error("Missing required fields");
@@ -90,24 +72,19 @@ export const update = async (req, res) => {
             phone,
             email,
             address,
-            describe
+            describe,
         });
         res.send(
             RESPONSE(
                 {
-                    [ResponseFields.kiotInfo]: result
+                    [ResponseFields.kiotInfo]: result,
                 },
-                "Update successful",
+                "Update successful"
             )
         );
     } catch (e) {
         res.status(400).send(
-            RESPONSE(
-                [],
-                "Update unsuccessful",
-                e.errors,
-                e.message
-            )
+            RESPONSE([], "Update unsuccessful", e.errors, e.message)
         );
     }
 };
