@@ -43,6 +43,7 @@ export const product_updateById = async (data) => {
         image,
         category,
         description,
+        kiot_id,
     } = data;
 
     const existingProduct = await product_getById(productId);
@@ -74,6 +75,10 @@ export const product_updateById = async (data) => {
 
     if (description) {
         existingProduct.description = description;
+    }
+
+    if (kiot_id) {
+        existingProduct.kiot_id = kiot_id;
     }
 
     return await existingProduct.save();

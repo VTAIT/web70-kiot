@@ -1,6 +1,5 @@
 import { RESPONSE } from "../globals/api.js";
 import { ResponseFields } from "../globals/fields/response.js";
-import { ProductModel } from "../globals/mongodb.js";
 
 import {
     product_create,
@@ -88,14 +87,10 @@ export const getAll_query = async (req, res) => {
 
         const conditions = req.query;
 
-        console.log("conditions", conditions);
-        console.log("cussor", cussor);
-
         let productFromDb = [];
         let saleOffProductList = [];
         let saleOffTransactionList = [];
 
-        console.log(role === 1 && cussor !== 0);
         // supper admin
         if (role === 1 && cussor !== 0) {
             productFromDb = await product_getAll_query(conditions);
@@ -225,6 +220,7 @@ export const update = async (req, res) => {
         category,
         description,
         image,
+        kiot_id,
     } = data;
 
     try {
@@ -238,7 +234,9 @@ export const update = async (req, res) => {
             image,
             category,
             description,
+            kiot_id,
         });
+
         res.send(
             RESPONSE(
                 {
