@@ -20,7 +20,7 @@ export const getAll = async (req, res) => {
   try {
     // supper admin
     if (role === 1) {
-      kiot_id = req.query.kiotId;
+      kiot_id = req.query[ResponseFields.did];
     }
     customerFromDb = await customer_getAllByKiot(kiot_id, cussor);
     res.send(

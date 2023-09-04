@@ -25,7 +25,7 @@ export const getAll = async (req, res) => {
 
     // supper admin
     if (role === 1) {
-      kiot_id = req.query.kiotId;
+      kiot_id = req.query[ResponseFields.did];
     }
     accountFromDb = await user_getAllByKiot(kiot_id, cussor);
 
