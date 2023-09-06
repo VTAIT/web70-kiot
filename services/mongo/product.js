@@ -103,6 +103,10 @@ export const product_getAll_query = async (conditions) => {
 
     let cussorNumber = parseInt(cussor);
 
+    if (!cussorNumber || search || price || category || fromdate || todate) {
+        cussorNumber = -1;
+    }
+
     if (cussorNumber && cussorNumber > 0) {
         query[MongoFields.id] = { $lte: cussorNumber };
     }
@@ -147,8 +151,6 @@ export const product_getAll_query = async (conditions) => {
         query[MongoFields.createdAt] = { $lte: new Date(todate) };
     }
 
-    console.log(query);
-
     return await ProductModel.find(query)
         .sort({ [MongoFields.id]: -1 })
         .limit(limit);
@@ -171,7 +173,6 @@ export const product_getAllByKiot = async (kiot_id, cussor = -1) => {
     if (cussor > 0) {
         query[MongoFields.id] = { $lte: cussor };
     }
-    console.log(query);
     return await ProductModel.find(query)
         .sort({ [MongoFields.id]: -1 })
         .limit(limit);
@@ -214,7 +215,7 @@ export const product_getAllByKiot_query = async (kiot_id, conditions) => {
         const minPrice = parseInt(priceRange[0]);
         const maxPrice = parseInt(priceRange[1]);
 
-        if (minPrice && maxPrice) {
+        if (minPrice >= 0 && maxPrice) {
             query[MongoFields.price] = { $gte: minPrice, $lte: maxPrice };
         } else if (minPrice) {
             query[MongoFields.price] = { $gte: minPrice };
@@ -239,8 +240,6 @@ export const product_getAllByKiot_query = async (kiot_id, conditions) => {
     if (todate && !fromdate) {
         query[MongoFields.createdAt] = { $lte: new Date(todate) };
     }
-
-    console.log(query);
 
     return await ProductModel.find(query)
         .sort({ [MongoFields.id]: -1 })
