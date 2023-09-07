@@ -114,7 +114,6 @@ export const saleoff_getByTracsaction = async (kiot_id) => {
         query[MongoFields.kiot_id] = kiot_id;
         query[MongoFields.type] = 2;
     }
-    console.log(query);
     return await SaleOffModel.find(query).sort({
         [MongoFields.id]: -1,
     });
