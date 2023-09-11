@@ -3,7 +3,7 @@ import { MongoFields } from "../../globals/fields/mongo.js";
 import { SaleOffModel } from "../../globals/mongodb.js";
 
 export const saleoff_create = async (data) => {
-  const { kiot_id, name_product, price, image, type, id } = data;
+  const { kiot_id, name_product, price, image, type, id, active } = data;
 
   const saleOffDoc = new SaleOffModel({
     _id: 0,
@@ -14,7 +14,7 @@ export const saleoff_create = async (data) => {
     user_id: id,
     code: "",
     type,
-    active: true,
+    active,
   });
 
   return await saleOffDoc.save();
@@ -22,7 +22,6 @@ export const saleoff_create = async (data) => {
 
 export const saleoff_updateById = async (data) => {
   const { saleOffId, name_product, price, image, type, active } = data;
-
   const existingSaleOff = await saleoff_getById(saleOffId);
 
   if (!existingSaleOff) throw new Error("Sale Off not already exist");
@@ -43,7 +42,7 @@ export const saleoff_updateById = async (data) => {
   }
 
   if (active != existingSaleOff.active) {
-    existingSaleOff.active = active;
+    existingSaleOff.active = JSON.parse(active);
   }
 
   if (type) {
@@ -99,7 +98,7 @@ export const saleoff_getAll_query = async (conditions) => {
   }
 
   if (active) {
-    query[MongoFields.active] = active;
+    query[MongoFields.active] = JSON.parse(active);
   }
 
   if (fromdate && todate) {
@@ -116,7 +115,7 @@ export const saleoff_getAll_query = async (conditions) => {
   if (todate && !fromdate) {
     query[MongoFields.createdAt] = { $lte: new Date(todate) };
   }
-  console.log(query);
+
   return await SaleOffModel.find(query)
     .sort({ [MongoFields.id]: -1 })
     .limit(limit);
@@ -181,7 +180,7 @@ export const saleoff_getAllByKiot_query = async (kiot_id, conditions) => {
   }
 
   if (active) {
-    query[MongoFields.active] = active;
+    query[MongoFields.active] = JSON.parse(active);
   }
 
   if (fromdate && todate) {
@@ -198,7 +197,7 @@ export const saleoff_getAllByKiot_query = async (kiot_id, conditions) => {
   if (todate && !fromdate) {
     query[MongoFields.createdAt] = { $lte: new Date(todate) };
   }
-  console.log(query);
+
   return await SaleOffModel.find(query)
     .sort({ [MongoFields.id]: -1 })
     .limit(limit);

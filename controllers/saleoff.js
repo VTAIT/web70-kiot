@@ -138,7 +138,7 @@ export const getById = async (req, res) => {
 
 export const create = async (req, res) => {
   const { id } = req.users;
-  const { kiot_id, name_product, rate, image, type } = req.body;
+  const { kiot_id, name_product, rate, image, type, active } = req.body;
   try {
     if (!id || !kiot_id || !name_product || !rate)
       throw new Error("Missing required fields");
@@ -153,6 +153,7 @@ export const create = async (req, res) => {
       image,
       type,
       id,
+      active,
     });
     res.send(
       RESPONSE(
@@ -180,7 +181,7 @@ export const update = async (req, res) => {
       price: rate,
       image,
       type,
-      active: Boolean(active),
+      active,
     });
     res.send(
       RESPONSE(
