@@ -62,6 +62,11 @@ TransactionSchema.add({
         type: Number,
         cast: '{VALUE} is invalid',
     },
+    // Tổng tiền
+    value: {
+        type: Number,
+        cast: '{VALUE} is invalid',
+    },
 });
 TransactionSchema.pre('save', async function () {
     // Don't increment if this is NOT a newly created document
