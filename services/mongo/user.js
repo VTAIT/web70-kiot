@@ -85,8 +85,9 @@ export const user_updateById = async (data) => {
   if (status) {
     existingUser.status = status;
   }
-
-  existingUser.avatarUrl = avatarUrl;
+  if (avatarUrl) {
+    existingUser.avatarUrl = avatarUrl;
+  }
 
   return await existingUser.save();
 };
@@ -120,13 +121,16 @@ export const user_getAll = async (isShowPassword = false, cussor = -1) => {
     .select("-password");
 };
 
+export const user_getAllByKiot = async (
+  kiotId = -1,
+  isShowPassword = false,
+  cussor = -1
+) => {
+  let query = {};
 
-export const user_getAllByKiot = async (kiotId = -1, isShowPassword = false, cussor = -1) => {
-    let query = {};
-
-    if (Boolean(kiotId) && kiotId > 0){
-        query[MongoFields.kiot_id] = kiotId
-    }
+  if (Boolean(kiotId) && kiotId > 0) {
+    query[MongoFields.kiot_id] = kiotId;
+  }
 
   if (cussor > 0) {
     query[MongoFields.id] = { $lte: cussor };

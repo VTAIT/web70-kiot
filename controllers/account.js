@@ -237,19 +237,11 @@ export const acceptById = async (req, res) => {
 export const avatarUpload = async (req, res) => {
   try {
     const { id } = req.users;
-    
+
     const src = await uploadStream(req.file.buffer);
-    
+
     if (!src) throw new Error("Missing required fields");
-    
-try {
-  const result = await user_updateById({
-    userId: id,
-    avatarUrl: src.url,
-  });
-} catch (error) {
-  console.log(error)
-}
+
     const result = await user_updateById({
       userId: id,
       avatarUrl: src.url,
