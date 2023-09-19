@@ -165,9 +165,7 @@ export const create = async (req, res) => {
   const { name_product, price, category, description, active, image } = data;
 
   try {
-    if (
-      (!name_product || !price || !category || !description || !active, !image)
-    )
+    if (!name_product || !price || !category || !description || !active)
       throw new Error("Missing required fields");
 
     const exist = await product_getByName(
