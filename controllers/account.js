@@ -77,11 +77,9 @@ export const create = async (req, res) => {
     if (await user_getByUserName(username))
       throw new Error("User has already exist");
 
-    const hashedPassword = await hashPassWord(password);
-
     const userDoc = await user_create({
       username,
-      password: hashedPassword,
+      password,
       email,
       fullName,
       phone,
