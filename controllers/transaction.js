@@ -1,6 +1,6 @@
 import { RESPONSE } from "../globals/api.js";
 import { ResponseFields } from "../globals/fields/response.js";
-import { transaction_create, transaction_getAll, transaction_getAllByKiot, transaction_getById, transaction_updateById } from "../services/mongo/transaction.js";
+import { transaction_create, transaction_getAll, transaction_getAllByKiot, transaction_getAllByKiotReport, transaction_getById, transaction_updateById } from "../services/mongo/transaction.js";
 
 export const getAll = async (req, res) => {
     const { kiot_id, role } = req.users;
@@ -79,7 +79,7 @@ export const create = async (req, res) => {
             value
         } = req.body;
 
-        if (!username || !kiot_id || !status) throw new Error("Missing required fields");
+        if (!username || !kiot_id || !status || !value) throw new Error("Missing required fields");
 
         if (status === 2 && (!retrun_list?.slice(-1)[0] || !returnV || returnV <= 0)) throw new Error("Missing required fields, status 2");
 
@@ -155,6 +155,35 @@ export const update = async (req, res) => {
             RESPONSE(
                 [],
                 "Update unsuccessful",
+                e.errors,
+                e.message
+            )
+        );
+    }
+};
+
+export const getAllReport = async (req, res) => {
+    const { kiot_id } = req.users;
+
+    let transactionFromDb = [];
+
+    try {
+        transactionFromDb = await transaction_getAllByKiotReport(kiot_id);
+
+        res.send(
+            RESPONSE(
+                {
+                    [ResponseFields.transactionList]: transactionFromDb,
+                },
+                "Successful",
+            )
+        );
+
+    } catch (e) {
+        res.status(400).send(
+            RESPONSE(
+                [],
+                "Unsuccessful",
                 e.errors,
                 e.message
             )

@@ -10,7 +10,8 @@ export const transaction_create = async (data) => {
         deposit,
         returnV,
         retrun_list,
-        product_list
+        product_list,
+        value
     } = data;
 
     const codeV = Number(new Date().toISOString().split("T")[0].replaceAll("-", ""));
@@ -24,7 +25,8 @@ export const transaction_create = async (data) => {
         returnV: status === 2 ? returnV : 0,
         retrun_list: status === 2 ? retrun_list : [],
         product_list: status !== 2 ? product_list : [],
-        code: codeV
+        code: codeV,
+        value
     });
 
     return await transactionDoc.save();
@@ -95,4 +97,9 @@ export const transaction_getAllByKiot = async (kiot_id, cussor = -1) => {
         query[MongoFields.id] = { $lte: cussor };
     }
     return await TransactionModel.find(query).sort({ [MongoFields.id]: -1 }).limit(limit);
+};
+
+export const transaction_getAllByKiotReport = async (kiot_id) => {
+    let query = { [MongoFields.kiot_id]: kiot_id };
+    return await TransactionModel.find(query).sort({ [MongoFields.id]: -1 });
 };
