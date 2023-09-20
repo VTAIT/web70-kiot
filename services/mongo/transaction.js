@@ -17,7 +17,7 @@ export const transaction_create = async (data) => {
     
     const dateCurrent = new Date().toISOString();
     const splitDate = dateCurrent.split("T")[0];
-    const replaceDate = splitDate.replaceAll("-", "");
+    const replaceDate = splitDate.replace(/-/g, '');
 
     const codeV = Number(replaceDate);
 
