@@ -79,13 +79,13 @@ export const create = async (req, res) => {
             value
         } = req.body;
 
-        if (!username || !kiot_id || !status || !value) throw new Error("Missing required fields");
+        if (!username || !kiot_id || !status ) throw new Error("Missing required fields");
 
         if (status === 2 && (!retrun_list?.slice(-1)[0] || !returnV || returnV <= 0)) throw new Error("Missing required fields, status 2");
 
         if (status === 3 && (!deposit || deposit <= 0)) throw new Error("Missing required fields, status 3");
 
-        if ([1, 3, 4].includes(status) && !product_list?.slice(-1)[0] || value <= 0) throw new Error("Missing required fields, status 134");
+        if ([1, 3, 4].includes(status) && (!product_list?.slice(-1)[0] || !value || value <= 0)) throw new Error("Missing required fields, status 134");
 
         const transactionDoc = await transaction_create({
             username,
