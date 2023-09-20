@@ -20,7 +20,7 @@ export const product_create = async (data) => {
     kiot_id,
     name_product,
     price,
-    image: image ? image : "http://dummyimage.com/420x420.png/dddddd/000000",
+    image: image ? image : "http://dummyimage.com/420x420.png/5fa2dd/ffffff",
     user_id,
     category,
     code: "",
